@@ -47,13 +47,16 @@ export default function ActiveCallScreen() {
 
   const isVideo = callType === "video";
 
-  // Attach stored remote stream to video element when this component mounts
-  // (ontrack may have fired before this component existed)
+  // Attach stored streams to video elements when this component mounts
+  // (captureMedia / ontrack may have fired before this component existed)
   useEffect(() => {
     if (remoteStreamRef.current && remoteVideoRef.current) {
       remoteVideoRef.current.srcObject = remoteStreamRef.current;
     }
-  }, [remoteStreamRef, remoteVideoRef]);
+    if (localStreamRef.current && localVideoRef.current) {
+      localVideoRef.current.srcObject = localStreamRef.current;
+    }
+  }, [remoteStreamRef, remoteVideoRef, localStreamRef, localVideoRef]);
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-black">
