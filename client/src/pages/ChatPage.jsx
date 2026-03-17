@@ -109,17 +109,7 @@ export default function ChatPage() {
     addSystemMessage,
     forwardMessage,
   } = useChat();
-  const {
-    isAudioActive,
-    remoteStream,
-    isMuted,
-    isAnswer,
-    callDuration,
-    audioRef,
-    callIndicatorRef,
-    toggleAudio,
-    toggleMute,
-  } = useCall();
+  const { initiateCall } = useCall();
 
   /* ── basic state ── */
   const [inputMessage, setInputMessage] = useState("");
@@ -1091,7 +1081,7 @@ export default function ChatPage() {
               <div className="dropdown-divider" />
 
               {/* Voice Call */}
-              <button className="dropdown-item" onClick={() => closeDropdown(() => toggleAudio(roomId))} disabled={!isConnected} style={{ opacity: isConnected ? 1 : 0.45 }}>
+              <button className="dropdown-item" onClick={() => closeDropdown(() => otherUser && initiateCall(roomId, "audio", otherUser))} disabled={!isConnected} style={{ opacity: isConnected ? 1 : 0.45 }}>
                 <div className="dropdown-icon" style={{ background: "#2196F3" }}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 013.07 3.18 2 2 0 015.08 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L9.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
@@ -1101,7 +1091,7 @@ export default function ChatPage() {
               </button>
 
               {/* Video Call */}
-              <button className="dropdown-item" style={{ opacity: 0.45 }}>
+              <button className="dropdown-item" onClick={() => closeDropdown(() => otherUser && initiateCall(roomId, "video", otherUser))} disabled={!isConnected} style={{ opacity: isConnected ? 1 : 0.45 }}>
                 <div className="dropdown-icon" style={{ background: "#9C27B0" }}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <polygon points="23,7 16,12 23,17" />
@@ -1153,24 +1143,6 @@ export default function ChatPage() {
             {messages.filter((m) => m.text?.toLowerCase().includes(searchQuery.toLowerCase())).length} results
           </span>
         )}
-      </div>
-
-      {/* ── Call Indicator ── */}
-      <div className="call-indecator" ref={callIndicatorRef}>
-        <div
-          className="timer"
-          style={{
-            color: isBright ? "var(--txt-clr)" : "var(--txt-clr-light)",
-          }}
-        >
-          {callDuration}
-        </div>
-        <div className="audio-visualizer-container">
-          <VoiceVisualizer audioStream={remoteStream} isBright={isBright} />
-        </div>
-        <button onClick={() => toggleAudio(roomId)}>
-          {React.cloneElement(icons.call, { fill: iconFill })}
-        </button>
       </div>
 
       {/* ── Messages area ── */}
@@ -1526,8 +1498,7 @@ export default function ChatPage() {
         </button>
       )}
 
-      {/* ── Audio / Video refs ── */}
-      <audio ref={audioRef} autoPlay playsInline style={{ display: "none" }} />
+      {/* ── Video ref ── */}
       {videoOn && <video ref={videoRef} autoPlay muted playsInline />}
       {bgimage && bgimage.startsWith("#") ? (
         <div className="img-bg" ref={bgimageRef} style={{ backgroundColor: bgimage }} />

@@ -13,6 +13,7 @@ const setupSocket = (io) => {
   io.use(socketAuthMiddleware);
 
   io.on("connection", (socket) => {
+    console.log(`[SOCKET] New connection: ${socket.id}, clerkId: ${socket.clerkId || "NONE"}`);
     // Track user → socket mapping for direct notifications
     if (socket.clerkId) {
       register(socket.clerkId, socket.id);
@@ -22,11 +23,15 @@ const setupSocket = (io) => {
         .then((user) => {
           if (!user) return;
           socket._mongoUserId = user._id;
+          // Join a personal room so call events can reach this user regardless of chat room
+          const personalRoom = `user:${user._id}`;
+          socket.join(personalRoom);
+          console.log(`[SOCKET] ${user.displayName || user.username} joined personal room: ${personalRoom}`);
           user.friends.forEach((f) =>
             emitToUser(f.clerkId, "friend-online", { userId: user._id.toString() })
           );
         })
-        .catch(() => {});
+        .catch((err) => console.error("[SOCKET] User lookup failed:", err.message));
     }
 
     // Heartbeat
@@ -40,9 +45,9 @@ const setupSocket = (io) => {
 
     // Room management
     socket.on("join-room", (roomId) => {
-      // Leave previous rooms
+      // Leave previous chat rooms (keep socket.id room and personal user: room)
       const previousRooms = Array.from(socket.rooms).filter(
-        (room) => room !== socket.id
+        (room) => room !== socket.id && !room.startsWith("user:")
       );
       for (const room of previousRooms) {
         socket.leave(room);
