@@ -2,7 +2,7 @@ const socketAuthMiddleware = require("../middleware/socketAuthMiddleware");
 const chatHandlers = require("./chatHandlers");
 const callHandlers = require("./callHandlers");
 const presenceHandlers = require("./presenceHandlers");
-const { init, register, unregister, userSockets } = require("./socketEmitter");
+const { init, register, unregister, emitToUser, userSockets } = require("./socketEmitter");
 const User = require("../models/User");
 
 // Store room data (kept from original server.js)

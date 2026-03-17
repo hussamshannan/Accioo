@@ -12,9 +12,18 @@ export function SocketProvider({ children }) {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef(null);
+  const getTokenRef = useRef(getToken);
+
+  // Keep getToken ref current without triggering socket recreation
+  useEffect(() => {
+    getTokenRef.current = getToken;
+  }, [getToken]);
+
+  // Stable clerkId — only changes on actual sign-in/out, not on object reference changes
+  const clerkId = clerkUser?.id;
 
   useEffect(() => {
-    if (!isSignedIn || !clerkUser) {
+    if (!isSignedIn || !clerkId) {
       // Disconnect existing socket if user signs out
       if (socketRef.current) {
         socketRef.current.disconnect();
@@ -29,7 +38,7 @@ export function SocketProvider({ children }) {
       // Get Clerk session token for auth
       let token = "";
       try {
-        token = (await getToken()) || "";
+        token = (await getTokenRef.current()) || "";
       } catch {
         // Token retrieval failed — socket will rely on clerkId
       }
@@ -44,7 +53,7 @@ export function SocketProvider({ children }) {
         timeout: 60000,
         auth: {
           token,
-          clerkId: clerkUser.id,
+          clerkId,
         },
       });
 
@@ -83,8 +92,7 @@ export function SocketProvider({ children }) {
         socketRef.current = null;
       }
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isSignedIn, clerkUser, getToken]);
+  }, [isSignedIn, clerkId]);
 
   return (
     <SocketContext.Provider value={{ socket, isConnected }}>
