@@ -1,5 +1,5 @@
 const allowedOrigins = [
-  "https://joichat.netlify.app",
+  "https://accioo.netlify.app",
   "http://localhost:5173",
   "http://localhost:3001",
 ];
