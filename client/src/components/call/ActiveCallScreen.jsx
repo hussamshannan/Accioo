@@ -59,34 +59,32 @@ export default function ActiveCallScreen() {
     <div className="fixed inset-0 z-50 flex flex-col bg-black">
       {isVideo ? (
         <>
-          {/* Remote video */}
-          {remoteCameraOn ? (
-            <video
-              ref={remoteVideoRef}
-              autoPlay
-              playsInline
-              className="absolute inset-0 w-full h-full object-cover"
-            />
-          ) : (
+          {/* Remote video — always mounted so ontrack stream persists */}
+          <video
+            ref={remoteVideoRef}
+            autoPlay
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ display: remoteCameraOn ? "block" : "none" }}
+          />
+          {!remoteCameraOn && (
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-black gap-3">
-              <video ref={remoteVideoRef} autoPlay playsInline style={{ display: "none" }} />
               <UserAvatar user={remoteUser} size="2xl" showOnline={false} />
               <p className="text-white/40 text-sm">Camera Off</p>
             </div>
           )}
 
-          {/* Local video PiP */}
+          {/* Local video PiP — always mounted so srcObject persists across toggles */}
           <div className="absolute bottom-28 right-4 w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20 bg-black z-10">
-            {isCameraOn ? (
-              <video
-                ref={localVideoRef}
-                autoPlay
-                playsInline
-                muted
-                className="w-full h-full object-cover"
-                style={{ transform: "scaleX(-1)" }}
-              />
-            ) : (
+            <video
+              ref={localVideoRef}
+              autoPlay
+              playsInline
+              muted
+              className="w-full h-full object-cover"
+              style={{ transform: "scaleX(-1)", display: isCameraOn ? "block" : "none" }}
+            />
+            {!isCameraOn && (
               <div className="w-full h-full flex items-center justify-center bg-gray-900">
                 <VideoOff className="w-6 h-6 text-white/40" />
               </div>
