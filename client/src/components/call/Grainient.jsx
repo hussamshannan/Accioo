@@ -158,14 +158,16 @@ export default function Grainient({
     const mesh = new Mesh(gl, { geometry, program });
 
     const setSize = () => {
-      const rect = container.getBoundingClientRect();
-      const width = Math.max(1, Math.floor(rect.width));
-      const height = Math.max(1, Math.floor(rect.height));
+      const width = Math.max(1, container.clientWidth);
+      const height = Math.max(1, container.clientHeight);
       renderer.setSize(width, height);
       const res = program.uniforms.iResolution.value;
       res[0] = gl.drawingBufferWidth;
       res[1] = gl.drawingBufferHeight;
     };
+
+    // Defer so layout is complete before measuring
+    requestAnimationFrame(setSize);
 
     const ro = new ResizeObserver(setSize);
     ro.observe(container);

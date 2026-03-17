@@ -9,7 +9,8 @@ export default function IncomingCallScreen() {
   const { callType, remoteUser, acceptCall, rejectCall } = useCall();
   const containerRef = useRef(null);
 
-  const typeLabel = callType === "video" ? "Incoming Video Call" : "Incoming Voice Call";
+  const typeLabel =
+    callType === "video" ? "Incoming Video Call" : "Incoming Voice Call";
 
   // GSAP entrance animation
   useEffect(() => {
@@ -17,15 +18,12 @@ export default function IncomingCallScreen() {
     gsap.fromTo(
       containerRef.current,
       { scale: 0.95, opacity: 0 },
-      { scale: 1, opacity: 1, duration: 0.3, ease: "power2.out" }
+      { scale: 1, opacity: 1, duration: 0.3, ease: "power2.out" },
     );
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="fixed inset-0 z-50 bg-black"
-    >
+    <div ref={containerRef} className="fixed inset-0 z-50 bg-black">
       {/* Background — fills entire screen */}
       {callType === "audio" && (
         <Grainient color1="#000000" color2="#000000" color3="#e1940e" />
@@ -37,7 +35,10 @@ export default function IncomingCallScreen() {
         <div className="flex flex-col items-center justify-center flex-1 gap-4">
           <div className="relative">
             <div className="absolute inset-0 rounded-full animate-pulse-ring bg-white/10" />
-            <div className="absolute inset-[-8px] rounded-full animate-pulse-ring bg-white/5" style={{ animationDelay: "0.5s" }} />
+            <div
+              className="absolute inset-[-8px] rounded-full animate-pulse-ring bg-white/5"
+              style={{ animationDelay: "0.5s" }}
+            />
             <UserAvatar user={remoteUser} size="2xl" showOnline={false} />
           </div>
           <h2 className="text-white text-xl font-semibold mt-4">
