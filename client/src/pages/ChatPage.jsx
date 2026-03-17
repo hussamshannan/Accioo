@@ -140,7 +140,10 @@ export default function ChatPage() {
 
   /* ── wallpaper picker ── */
   const [wallpaperOpen, setWallpaperOpen] = useState(false);
+  const [wallpaperTab, setWallpaperTab] = useState("photos"); // "photos" | "colors"
   const wallpaperFileRef = useRef(null);
+  const wallpaperSheetRef = useRef(null);
+  const wallpaperOverlayRef = useRef(null);
 
   /* ── nav dropdown ── */
   const [navAvatarFailed, setNavAvatarFailed] = useState(false);
@@ -626,6 +629,53 @@ export default function ChatPage() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dropdownOpen]);
 
+  /* ── solid color presets ── */
+  const solidColors = [
+    { name: "Midnight", value: "#0a0a0a" },
+    { name: "Charcoal", value: "#1a1a2e" },
+    { name: "Navy", value: "#0f1b2d" },
+    { name: "Deep Teal", value: "#0d2b2b" },
+    { name: "Forest", value: "#1a2e1a" },
+    { name: "Wine", value: "#2e1a1a" },
+    { name: "Indigo", value: "#1a1a3e" },
+    { name: "Slate", value: "#2d3748" },
+    { name: "Storm", value: "#374151" },
+    { name: "Graphite", value: "#4a5568" },
+    { name: "Fog", value: "#94a3b8" },
+    { name: "Cloud", value: "#cbd5e1" },
+    { name: "Pearl", value: "#e2e8f0" },
+    { name: "Snow", value: "#f1f5f9" },
+    { name: "Blush", value: "#fce4ec" },
+    { name: "Lavender", value: "#ede9fe" },
+    { name: "Mint", value: "#d1fae5" },
+    { name: "Sky", value: "#dbeafe" },
+  ];
+
+  /* ── wallpaper sheet animation ── */
+  const openWallpaperSheet = useCallback(() => {
+    setWallpaperOpen(true);
+    requestAnimationFrame(() => {
+      if (wallpaperOverlayRef.current) {
+        gsap.fromTo(wallpaperOverlayRef.current, { opacity: 0 }, { opacity: 1, duration: 0.25, ease: "power2.out" });
+      }
+      if (wallpaperSheetRef.current) {
+        gsap.fromTo(wallpaperSheetRef.current, { y: "100%" }, { y: "0%", duration: 0.35, ease: "power3.out" });
+      }
+    });
+  }, []);
+
+  const closeWallpaperSheet = useCallback(() => {
+    const tl = gsap.timeline({
+      onComplete: () => setWallpaperOpen(false),
+    });
+    if (wallpaperSheetRef.current) {
+      tl.to(wallpaperSheetRef.current, { y: "100%", duration: 0.25, ease: "power2.in" }, 0);
+    }
+    if (wallpaperOverlayRef.current) {
+      tl.to(wallpaperOverlayRef.current, { opacity: 0, duration: 0.2 }, 0.05);
+    }
+  }, []);
+
   /* ── custom wallpaper upload ── */
   const handleWallpaperUpload = (e) => {
     const file = e.target.files[0];
@@ -635,7 +685,7 @@ export default function ChatPage() {
     reader.onload = (ev) => {
       const dataUrl = ev.target.result;
       handleSetBgImageForBoth(dataUrl, "custom");
-      setWallpaperOpen(false);
+      closeWallpaperSheet();
     };
     reader.readAsDataURL(file);
   };
@@ -1064,7 +1114,7 @@ export default function ChatPage() {
               <div className="dropdown-divider" />
 
               {/* Change Background */}
-              <button className="dropdown-item" onClick={() => closeDropdown(() => setWallpaperOpen(true))}>
+              <button className="dropdown-item" onClick={() => closeDropdown(() => openWallpaperSheet())}>
                 <div className="dropdown-icon" style={{ background: "#FF9800" }}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -1479,7 +1529,11 @@ export default function ChatPage() {
       {/* ── Audio / Video refs ── */}
       <audio ref={audioRef} autoPlay playsInline style={{ display: "none" }} />
       {videoOn && <video ref={videoRef} autoPlay muted playsInline />}
-      <img src={bgimage} className="img-bg" alt="" ref={bgimageRef} />
+      {bgimage && bgimage.startsWith("#") ? (
+        <div className="img-bg" ref={bgimageRef} style={{ backgroundColor: bgimage }} />
+      ) : (
+        <img src={bgimage} className="img-bg" alt="" ref={bgimageRef} />
+      )}
 
       {/* ── Gallery ── */}
       <div
@@ -1884,48 +1938,169 @@ export default function ChatPage() {
       {/* ── Wallpaper picker ── */}
       {wallpaperOpen && (
         <>
-          <div className="wallpaper-overlay" onClick={() => setWallpaperOpen(false)} />
-          <div className="wallpaper-sheet">
-            <h3>Chat Wallpaper</h3>
+          <div
+            ref={wallpaperOverlayRef}
+            className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-[2px]"
+            onClick={closeWallpaperSheet}
+          />
+          <div
+            ref={wallpaperSheetRef}
+            className="fixed bottom-0 left-1/2 -translate-x-1/2 z-[61] w-full max-w-[600px]
+                       bg-[var(--body-bg-clr)] rounded-t-[20px] flex flex-col"
+            style={{ maxHeight: "85vh" }}
+          >
+            {/* Drag handle */}
+            <div className="flex justify-center pt-3 pb-1">
+              <div className="w-9 h-1 rounded-full bg-[var(--accent-clr)]" />
+            </div>
 
-            {/* Upload custom image */}
-            <button
-              className="wallpaper-upload-btn"
-              onClick={() => wallpaperFileRef.current?.click()}
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="18" height="18">
-                <rect x="3" y="3" width="18" height="18" rx="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21,15 16,10 5,21" />
-              </svg>
-              Upload from camera roll
-            </button>
-            <input
-              ref={wallpaperFileRef}
-              type="file"
-              accept="image/jpeg,image/png,image/gif,image/webp,image/jpg"
-              onChange={handleWallpaperUpload}
-              style={{ display: "none" }}
-            />
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 pb-3">
+              <h3 className="text-[15px] font-bold text-[var(--txt-clr)]">Chat Wallpaper</h3>
+              <button
+                onClick={closeWallpaperSheet}
+                className="w-8 h-8 rounded-full flex items-center justify-center
+                           bg-[var(--body-bg-clr-gray)] text-[var(--txt-clr-dark)]
+                           hover:bg-[var(--accent-clr)] transition-colors"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
 
-            {bgimage && bgimage.startsWith("data:") && (
-              <p className="wallpaper-current">Custom image active ✓</p>
-            )}
+            {/* Tabs */}
+            <div className="flex gap-1 mx-5 mb-3 p-1 rounded-xl bg-[var(--body-bg-clr-gray)]">
+              <button
+                onClick={() => setWallpaperTab("photos")}
+                className={`flex-1 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200
+                  ${wallpaperTab === "photos"
+                    ? "bg-[var(--body-bg-clr)] text-[var(--txt-clr)] shadow-sm"
+                    : "text-[var(--txt-clr-dark)] hover:text-[var(--txt-clr)]"
+                  }`}
+              >
+                Photos
+              </button>
+              <button
+                onClick={() => setWallpaperTab("colors")}
+                className={`flex-1 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200
+                  ${wallpaperTab === "colors"
+                    ? "bg-[var(--body-bg-clr)] text-[var(--txt-clr)] shadow-sm"
+                    : "text-[var(--txt-clr-dark)] hover:text-[var(--txt-clr)]"
+                  }`}
+              >
+                Solid Colors
+              </button>
+            </div>
 
-            {/* Preset wallpapers grid */}
-            <div className="wallpaper-grid">
-              {Object.entries(allImages).map(([name, { full, small }]) => (
-                <div
-                  key={name}
-                  className={`wallpaper-thumb ${bgimage === full ? "selected" : ""}`}
-                  onClick={() => {
-                    handleSetBgImageForBoth(full, name);
-                    setWallpaperOpen(false);
-                  }}
-                >
-                  <img src={small || full} alt={name} draggable="false" />
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom)+20px)]">
+
+              {wallpaperTab === "photos" && (
+                <>
+                  {/* Upload button */}
+                  <button
+                    onClick={() => wallpaperFileRef.current?.click()}
+                    className="w-full mb-3 py-3 rounded-xl border-2 border-dashed border-[var(--accent-clr)]
+                               bg-[var(--body-bg-clr-gray)] flex items-center justify-center gap-2.5
+                               text-[13px] font-semibold text-[var(--txt-clr-dark)]
+                               hover:border-[var(--primary-clr)] hover:text-[var(--txt-clr)] transition-colors"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    Upload from camera roll
+                  </button>
+                  <input
+                    ref={wallpaperFileRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp,image/jpg"
+                    onChange={handleWallpaperUpload}
+                    className="hidden"
+                  />
+
+                  {bgimage && bgimage.startsWith("data:") && (
+                    <div className="mb-3 py-2 px-3 rounded-lg bg-emerald-500/10 text-emerald-600 text-[12px] font-medium flex items-center gap-2">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Custom image active
+                    </div>
+                  )}
+
+                  {/* Photo grid */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {Object.entries(allImages).map(([name, { full, small }]) => (
+                      <button
+                        key={name}
+                        onClick={() => {
+                          handleSetBgImageForBoth(full, name);
+                          closeWallpaperSheet();
+                        }}
+                        className={`relative aspect-[9/16] rounded-xl overflow-hidden group transition-all duration-200
+                          ${bgimage === full
+                            ? "ring-2 ring-[var(--primary-clr)] ring-offset-2 ring-offset-[var(--body-bg-clr)] scale-[0.97]"
+                            : "hover:scale-[0.97]"
+                          }`}
+                      >
+                        <img
+                          src={small || full}
+                          alt={name}
+                          draggable="false"
+                          className="w-full h-full object-cover pointer-events-none select-none"
+                        />
+                        {bgimage === full && (
+                          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                            <div className="w-7 h-7 rounded-full bg-white flex items-center justify-center">
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0a0a0a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                              </svg>
+                            </div>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {wallpaperTab === "colors" && (
+                <div className="grid grid-cols-4 gap-2.5">
+                  {solidColors.map((color) => (
+                    <button
+                      key={color.value}
+                      onClick={() => {
+                        handleSetBgImageForBoth(color.value, color.name);
+                        closeWallpaperSheet();
+                      }}
+                      className={`flex flex-col items-center gap-1.5 group`}
+                    >
+                      <div
+                        className={`w-full aspect-square rounded-2xl transition-all duration-200
+                          ${bgimage === color.value
+                            ? "ring-2 ring-[var(--primary-clr)] ring-offset-2 ring-offset-[var(--body-bg-clr)] scale-[0.93]"
+                            : "hover:scale-[0.93]"
+                          }`}
+                        style={{ backgroundColor: color.value }}
+                      >
+                        {bgimage === color.value && (
+                          <div className="w-full h-full rounded-2xl flex items-center justify-center bg-black/20">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                          </div>
+                        )}
+                      </div>
+                      <span className="text-[10px] text-[var(--txt-clr-dark)] font-medium leading-tight">
+                        {color.name}
+                      </span>
+                    </button>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </>
