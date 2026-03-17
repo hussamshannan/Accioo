@@ -234,7 +234,7 @@ export default function AuthPage() {
         style={{ background: "#060a10" }}
       >
         <h1 className="text-4xl font-bold select-none">
-          <ShinyText>GoCall</ShinyText>
+          <ShinyText>Accioo</ShinyText>
         </h1>
         <div className="flex gap-1.5">
           {[0, 1, 2].map((i) => (

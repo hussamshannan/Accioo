@@ -640,16 +640,22 @@ export default function HomePage() {
   return (
     <div className="flex flex-col h-full bg-background overflow-hidden">
       {/* Header */}
-      <div ref={headerRef} className="flex items-center justify-between px-4 py-3 bg-background border-b border-border shrink-0">
+      <div
+        ref={headerRef}
+        className="flex items-center justify-between px-4 py-3 bg-background border-b border-border shrink-0"
+      >
         <h1 className="text-xl font-bold">
-          <ShinyText>GoCall</ShinyText>
+          <ShinyText>Accioo</ShinyText>
         </h1>
         <div className="flex items-center gap-1">
           {/* Search → contacts */}
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => { setContactPing(false); navigate("/contacts"); }}
+            onClick={() => {
+              setContactPing(false);
+              navigate("/contacts");
+            }}
             className="relative text-muted-foreground"
             title="Search"
           >
@@ -663,7 +669,10 @@ export default function HomePage() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => { setActivityPing(false); navigate("/activity"); }}
+            onClick={() => {
+              setActivityPing(false);
+              navigate("/activity");
+            }}
             className="relative text-muted-foreground"
             title="Activity"
           >
@@ -700,81 +709,114 @@ export default function HomePage() {
             {!hasCustomAvatar(dbUser?.avatarUrl) && (
               <div
                 className="absolute inset-0 rounded-full flex items-center justify-center pointer-events-none z-10"
-                style={{ background: "#00A884", color: "#fff", fontSize: 13, fontWeight: 600 }}
+                style={{
+                  background: "#00A884",
+                  color: "#fff",
+                  fontSize: 13,
+                  fontWeight: 600,
+                }}
               >
-                {(dbUser?.displayName || dbUser?.username || "?")[0].toUpperCase()}
+                {(dbUser?.displayName ||
+                  dbUser?.username ||
+                  "?")[0].toUpperCase()}
               </div>
             )}
-          <UserButton
-            afterSignOutUrl="/auth"
-            appearance={{
-              variables: {
-                colorBackground:        isBright ? "#ffffff" : "#1f1f1f",
-                colorText:              isBright ? "#111827" : "#f5f5f5",
-                colorTextSecondary:     isBright ? "#6b7280" : "#d1d5db",
-                colorInputBackground:   isBright ? "#f5f5f5" : "#2a2a2a",
-                colorInputText:         isBright ? "#111827" : "#f5f5f5",
-                colorPrimary:           "#00A884",
-                colorDanger:            "#f87171",
-                borderRadius:           "0.625rem",
-                fontFamily:             "inherit",
-              },
-              elements: {
-                userButtonAvatarBox: { width: 30, height: 30 },
-                ...(!hasCustomAvatar(dbUser?.avatarUrl) && {
-                  userButtonAvatarImage: { opacity: 0 },
-                }),
-                userButtonPopoverCard:        { boxShadow: "0 4px 24px rgba(0,0,0,0.25)", border: isBright ? "1px solid #e5e7eb" : "1px solid #333" },
-                userButtonPopoverActionButton:     { color: isBright ? "#111827" : "#f5f5f5" },
-                userButtonPopoverActionButtonText: { color: isBright ? "#111827" : "#f5f5f5" },
-                userButtonPopoverActionButtonIcon: { color: isBright ? "#6b7280" : "#d1d5db" },
-                userButtonPopoverFooter:      { display: "none" },
-              },
-            }}
-            userProfileProps={{
-              appearance: {
-                // Always use explicit light-mode colors for the account management
-                // portal — prevents the app's dark-mode CSS variables from bleeding
-                // in and making labels invisible on the white background.
+            <UserButton
+              afterSignOutUrl="/auth"
+              appearance={{
                 variables: {
-                  colorBackground:        "#ffffff",
-                  colorText:              "#111827",
-                  colorTextSecondary:     "#6b7280",
-                  colorInputBackground:   "#f9fafb",
-                  colorInputText:         "#111827",
-                  colorPrimary:           "#00A884",
-                  colorDanger:            "#ef4444",
-                  borderRadius:           "0.5rem",
-                  fontFamily:             "inherit",
+                  colorBackground: isBright ? "#ffffff" : "#1f1f1f",
+                  colorText: isBright ? "#111827" : "#f5f5f5",
+                  colorTextSecondary: isBright ? "#6b7280" : "#d1d5db",
+                  colorInputBackground: isBright ? "#f5f5f5" : "#2a2a2a",
+                  colorInputText: isBright ? "#111827" : "#f5f5f5",
+                  colorPrimary: "#00A884",
+                  colorDanger: "#f87171",
+                  borderRadius: "0.625rem",
+                  fontFamily: "inherit",
                 },
                 elements: {
-                  card:                   { boxShadow: "none" },
-                  navbar:                 { background: "#f9fafb", borderRight: "1px solid #e5e7eb" },
-                  navbarButton:           { color: "#374151" },
-                  navbarButtonActive:     { color: "#111827", background: "#e5e7eb" },
-                  pageScrollBox:          { background: "#ffffff" },
-                  profileSectionTitle:    { color: "#111827" },
-                  profileSectionTitleText:{ color: "#111827" },
-                  profileSectionContent:  { color: "#374151" },
-                  formFieldLabel:         { color: "#6b7280" },
-                  formFieldInput:         { background: "#f9fafb", border: "1px solid #d1d5db", color: "#111827" },
-                  headerTitle:            { color: "#111827" },
-                  headerSubtitle:         { color: "#6b7280" },
-                  dividerLine:            { background: "#e5e7eb" },
-                  dividerText:            { color: "#9ca3af" },
-                  accordionTriggerButton: { color: "#374151" },
-                  badge:                  { background: "#ecfdf5", color: "#059669", border: "1px solid #a7f3d0" },
-                  footerPagesLink:        { color: "#9ca3af" },
+                  userButtonAvatarBox: { width: 30, height: 30 },
+                  ...(!hasCustomAvatar(dbUser?.avatarUrl) && {
+                    userButtonAvatarImage: { opacity: 0 },
+                  }),
+                  userButtonPopoverCard: {
+                    boxShadow: "0 4px 24px rgba(0,0,0,0.25)",
+                    border: isBright ? "1px solid #e5e7eb" : "1px solid #333",
+                  },
+                  userButtonPopoverActionButton: {
+                    color: isBright ? "#111827" : "#f5f5f5",
+                  },
+                  userButtonPopoverActionButtonText: {
+                    color: isBright ? "#111827" : "#f5f5f5",
+                  },
+                  userButtonPopoverActionButtonIcon: {
+                    color: isBright ? "#6b7280" : "#d1d5db",
+                  },
+                  userButtonPopoverFooter: { display: "none" },
                 },
-              },
-            }}
-          />
+              }}
+              userProfileProps={{
+                appearance: {
+                  // Always use explicit light-mode colors for the account management
+                  // portal — prevents the app's dark-mode CSS variables from bleeding
+                  // in and making labels invisible on the white background.
+                  variables: {
+                    colorBackground: "#ffffff",
+                    colorText: "#111827",
+                    colorTextSecondary: "#6b7280",
+                    colorInputBackground: "#f9fafb",
+                    colorInputText: "#111827",
+                    colorPrimary: "#00A884",
+                    colorDanger: "#ef4444",
+                    borderRadius: "0.5rem",
+                    fontFamily: "inherit",
+                  },
+                  elements: {
+                    card: { boxShadow: "none" },
+                    navbar: {
+                      background: "#f9fafb",
+                      borderRight: "1px solid #e5e7eb",
+                    },
+                    navbarButton: { color: "#374151" },
+                    navbarButtonActive: {
+                      color: "#111827",
+                      background: "#e5e7eb",
+                    },
+                    pageScrollBox: { background: "#ffffff" },
+                    profileSectionTitle: { color: "#111827" },
+                    profileSectionTitleText: { color: "#111827" },
+                    profileSectionContent: { color: "#374151" },
+                    formFieldLabel: { color: "#6b7280" },
+                    formFieldInput: {
+                      background: "#f9fafb",
+                      border: "1px solid #d1d5db",
+                      color: "#111827",
+                    },
+                    headerTitle: { color: "#111827" },
+                    headerSubtitle: { color: "#6b7280" },
+                    dividerLine: { background: "#e5e7eb" },
+                    dividerText: { color: "#9ca3af" },
+                    accordionTriggerButton: { color: "#374151" },
+                    badge: {
+                      background: "#ecfdf5",
+                      color: "#059669",
+                      border: "1px solid #a7f3d0",
+                    },
+                    footerPagesLink: { color: "#9ca3af" },
+                  },
+                },
+              }}
+            />
           </div>
         </div>
       </div>
 
       {/* Stories Bar */}
-      <div ref={storiesBarRef} className="shrink-0 px-4 pt-3 border-b border-border pb-3">
+      <div
+        ref={storiesBarRef}
+        className="shrink-0 px-4 pt-3 border-b border-border pb-3"
+      >
         <ScrollArea className="w-full" scrollHideDelay={0}>
           <div className="flex gap-3 pr-2" style={{ minWidth: "max-content" }}>
             {/* Add story button */}
@@ -785,10 +827,19 @@ export default function HomePage() {
               <div className="relative">
                 <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-border">
                   {hasCustomAvatar(dbUser?.avatarUrl) ? (
-                    <img src={dbUser.avatarUrl} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={dbUser.avatarUrl}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
-                    <span className="text-xl font-semibold" style={{ color: "#00A884" }}>
-                      {(dbUser?.displayName || dbUser?.username || "?")[0].toUpperCase()}
+                    <span
+                      className="text-xl font-semibold"
+                      style={{ color: "#00A884" }}
+                    >
+                      {(dbUser?.displayName ||
+                        dbUser?.username ||
+                        "?")[0].toUpperCase()}
                     </span>
                   )}
                 </div>
@@ -796,12 +847,15 @@ export default function HomePage() {
                   <Plus className="w-3 h-3 text-white" />
                 </div>
               </div>
-              <span className="text-xs text-muted-foreground truncate max-w-[56px]">Your story</span>
+              <span className="text-xs text-muted-foreground truncate max-w-[56px]">
+                Your story
+              </span>
             </button>
 
             {/* Friend stories */}
             {storyFeed.map((group) => {
-              const name = group.author.displayName || group.author.username || "?";
+              const name =
+                group.author.displayName || group.author.username || "?";
               return (
                 <button
                   key={group.author._id}
@@ -811,13 +865,24 @@ export default function HomePage() {
                   <div className="w-14 h-14 rounded-full p-0.5 bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-400">
                     <div className="w-full h-full rounded-full overflow-hidden flex items-center justify-center border-2 border-background bg-muted">
                       {hasCustomAvatar(group.author.avatarUrl) ? (
-                        <img src={group.author.avatarUrl} alt={name} className="w-full h-full object-cover" />
+                        <img
+                          src={group.author.avatarUrl}
+                          alt={name}
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
-                        <span className="text-lg font-semibold" style={{ color: "#00A884" }}>{name[0].toUpperCase()}</span>
+                        <span
+                          className="text-lg font-semibold"
+                          style={{ color: "#00A884" }}
+                        >
+                          {name[0].toUpperCase()}
+                        </span>
                       )}
                     </div>
                   </div>
-                  <span className="text-xs text-muted-foreground truncate max-w-[56px]">{name}</span>
+                  <span className="text-xs text-muted-foreground truncate max-w-[56px]">
+                    {name}
+                  </span>
                 </button>
               );
             })}
@@ -841,28 +906,33 @@ export default function HomePage() {
                   <Archive className="w-5 h-5 text-muted-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">Archived</p>
+                  <p className="text-sm font-medium text-foreground">
+                    Archived
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     {archivedCount} conversation{archivedCount !== 1 ? "s" : ""}
                   </p>
                 </div>
-                <span className="text-xs text-muted-foreground">{showArchived ? "▲" : "▼"}</span>
+                <span className="text-xs text-muted-foreground">
+                  {showArchived ? "▲" : "▼"}
+                </span>
               </button>
             )}
 
             {/* Archived conversations (expanded) */}
-            {showArchived && archivedConvs.map((conv) => (
-              <ConvRow
-                key={conv._id}
-                conv={conv}
-                getConversationName={getConversationName}
-                getOtherParticipant={getOtherParticipant}
-                onOpen={handleOpenChat}
-                onDelete={(id) => handleDelete(id, true)}
-                onSetting={(id, action) => handleSetting(id, action, true)}
-                isArchived
-              />
-            ))}
+            {showArchived &&
+              archivedConvs.map((conv) => (
+                <ConvRow
+                  key={conv._id}
+                  conv={conv}
+                  getConversationName={getConversationName}
+                  getOtherParticipant={getOtherParticipant}
+                  onOpen={handleOpenChat}
+                  onDelete={(id) => handleDelete(id, true)}
+                  onSetting={(id, action) => handleSetting(id, action, true)}
+                  isArchived
+                />
+              ))}
 
             {showArchived && archivedConvs.length > 0 && (
               <div className="border-b border-border" />
@@ -885,12 +955,23 @@ export default function HomePage() {
           </ScrollArea>
         ) : (
           <div className="flex flex-col items-center justify-center h-full gap-4 text-center">
-            <MessageCircle className="w-12 h-12 text-muted-foreground" style={{ opacity: 0.4 }} />
+            <MessageCircle
+              className="w-12 h-12 text-muted-foreground"
+              style={{ opacity: 0.4 }}
+            />
             <div>
-              <p className="text-foreground font-medium mb-1">No conversations yet</p>
-              <p className="text-muted-foreground text-sm">Start a new chat to begin messaging</p>
+              <p className="text-foreground font-medium mb-1">
+                No conversations yet
+              </p>
+              <p className="text-muted-foreground text-sm">
+                Start a new chat to begin messaging
+              </p>
             </div>
-            <Button onClick={() => setShowNewChat(true)} variant="default" size="sm">
+            <Button
+              onClick={() => setShowNewChat(true)}
+              variant="default"
+              size="sm"
+            >
               New Chat
             </Button>
           </div>
@@ -905,22 +986,40 @@ export default function HomePage() {
       />
 
       {/* Delete confirmation dialog */}
-      <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+      <Dialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>Delete chat</DialogTitle>
             <DialogDescription>
-              Do you want to delete this chat only for yourself, or for everyone in the conversation?
+              Do you want to delete this chat only for yourself, or for everyone
+              in the conversation?
             </DialogDescription>
           </DialogHeader>
           <div className="flex flex-col gap-2 pt-2">
-            <Button variant="secondary" className="w-full" onClick={() => handleConfirmDelete(false)}>
+            <Button
+              variant="secondary"
+              className="w-full"
+              onClick={() => handleConfirmDelete(false)}
+            >
               Delete for me
             </Button>
-            <Button variant="destructive" className="w-full" onClick={() => handleConfirmDelete(true)}>
+            <Button
+              variant="destructive"
+              className="w-full"
+              onClick={() => handleConfirmDelete(true)}
+            >
               Delete for everyone
             </Button>
-            <Button variant="ghost" className="w-full text-muted-foreground" onClick={() => setDeleteTarget(null)}>
+            <Button
+              variant="ghost"
+              className="w-full text-muted-foreground"
+              onClick={() => setDeleteTarget(null)}
+            >
               Cancel
             </Button>
           </div>
