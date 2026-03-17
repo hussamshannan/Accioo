@@ -136,6 +136,26 @@ export function CallProvider({ children }) {
     }, 1000);
   }, []);
 
+  // ─── ICE Restart ─────────────────────────────────────────────────────
+  const iceRestartRef = useRef(false);
+
+  const attemptIceRestart = useCallback(async () => {
+    const pc = pcRef.current;
+    if (!pc || iceRestartRef.current) return;
+    iceRestartRef.current = true;
+
+    try {
+      const offer = await pc.createOffer({ iceRestart: true });
+      await pc.setLocalDescription(offer);
+      socket?.emit("call:webrtc-offer", {
+        roomId: stateRef.current.roomId,
+        offer,
+      });
+    } catch (err) {
+      console.warn("[CALL] ICE restart failed:", err);
+    }
+  }, [socket]);
+
   // ─── Create PeerConnection ────────────────────────────────────────────
   const createPeerConnection = useCallback(() => {
     const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
@@ -166,12 +186,20 @@ export function CallProvider({ children }) {
     };
 
     pc.onconnectionstatechange = () => {
-      if (pc.connectionState === "connected") {
+      const { connectionState } = pc;
+
+      if (connectionState === "connected") {
+        iceRestartRef.current = false;
         dispatch({ type: "SET_ACTIVE" });
         startTimer();
-      } else if (pc.connectionState === "failed" || pc.connectionState === "disconnected") {
-        // Connection lost
+      } else if (connectionState === "disconnected") {
+        // Transient — attempt ICE restart, don't kill the call
         if (stateRef.current.callState === "active") {
+          attemptIceRestart();
+        }
+      } else if (connectionState === "failed") {
+        // Permanent failure — end the call
+        if (stateRef.current.callState !== "idle") {
           socket?.emit("call:end", {
             roomId: stateRef.current.roomId,
             callId: stateRef.current.callId,
@@ -183,7 +211,7 @@ export function CallProvider({ children }) {
 
     pcRef.current = pc;
     return pc;
-  }, [socket, startTimer, cleanupCall]);
+  }, [socket, startTimer, cleanupCall, attemptIceRestart]);
 
   // ─── Capture media ────────────────────────────────────────────────────
   const captureMedia = useCallback(async (callType) => {
@@ -474,12 +502,20 @@ export function CallProvider({ children }) {
     };
   }, [socket, createPeerConnection, flushIceCandidates, cleanupCall]);
 
-  // Cleanup on disconnect
+  // Re-join call room on socket reconnect (so signaling relay keeps working)
   useEffect(() => {
-    if (!isConnected && stateRef.current.callState !== "idle") {
-      cleanupCall();
-    }
-  }, [isConnected, cleanupCall]);
+    if (!socket) return;
+
+    const handleReconnect = () => {
+      const { callState, roomId } = stateRef.current;
+      if (callState !== "idle" && roomId) {
+        socket.emit("rejoin-room", { roomId });
+      }
+    };
+
+    socket.on("connect", handleReconnect);
+    return () => socket.off("connect", handleReconnect);
+  }, [socket]);
 
   return (
     <CallContext.Provider
