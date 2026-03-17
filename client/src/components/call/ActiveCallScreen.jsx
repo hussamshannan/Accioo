@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useCall } from "@/contexts/CallContext";
 import UserAvatar from "@/components/ui/UserAvatar";
 import VoiceVisualizer from "@/components/VoiceVisualizer";
@@ -47,16 +47,26 @@ export default function ActiveCallScreen() {
 
   const isVideo = callType === "video";
 
-  // Attach stored streams to video elements when this component mounts
-  // (captureMedia / ontrack may have fired before this component existed)
-  useEffect(() => {
-    if (remoteStreamRef.current && remoteVideoRef.current) {
-      remoteVideoRef.current.srcObject = remoteStreamRef.current;
-    }
-    if (localStreamRef.current && localVideoRef.current) {
-      localVideoRef.current.srcObject = localStreamRef.current;
-    }
-  }, [remoteStreamRef, remoteVideoRef, localStreamRef, localVideoRef]);
+  // Callback refs — attach stream the instant the video element mounts
+  const localVideoCallbackRef = useCallback(
+    (el) => {
+      localVideoRef.current = el;
+      if (el && localStreamRef.current) {
+        el.srcObject = localStreamRef.current;
+      }
+    },
+    [localVideoRef, localStreamRef]
+  );
+
+  const remoteVideoCallbackRef = useCallback(
+    (el) => {
+      remoteVideoRef.current = el;
+      if (el && remoteStreamRef.current) {
+        el.srcObject = remoteStreamRef.current;
+      }
+    },
+    [remoteVideoRef, remoteStreamRef]
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-black">
@@ -64,7 +74,7 @@ export default function ActiveCallScreen() {
         <>
           {/* Remote video — always mounted so ontrack stream persists */}
           <video
-            ref={remoteVideoRef}
+            ref={remoteVideoCallbackRef}
             autoPlay
             playsInline
             className="absolute inset-0 w-full h-full object-cover"
@@ -80,7 +90,7 @@ export default function ActiveCallScreen() {
           {/* Local video PiP — always mounted so srcObject persists across toggles */}
           <div className="absolute bottom-28 right-4 w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20 bg-black z-10">
             <video
-              ref={localVideoRef}
+              ref={localVideoCallbackRef}
               autoPlay
               playsInline
               muted

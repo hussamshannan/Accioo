@@ -44,6 +44,7 @@ function callReducer(state, action) {
         callId: action.payload.callId,
         remoteUser: action.payload.callerInfo,
         roomId: action.payload.roomId,
+        isCameraOn: action.payload.callType === "video",
         remoteCameraOn: action.payload.callType === "video",
       };
     case "SET_CONNECTING":
