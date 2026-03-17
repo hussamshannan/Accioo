@@ -191,19 +191,25 @@
   color: rgba(255, 255, 255, 0.5) !important;
   opacity: 1 !important;
 }
-/* Clerk "Last used" badge / internal text on auth page */
-.cl-socialButtonsBlockButton span,
-.cl-socialButtonsBlockButton div,
-.cl-badge {
-  color: #b0b0b0 !important;
+/* Clerk auth — all text inside the card should be white */
+[class*="cl-card"],
+[class*="cl-card"] * {
+  color: #ffffff !important;
 }
-/* Clerk "Secured by" footer text */
-.cl-footerPages,
-.cl-footerPagesLink,
-.cl-footer span,
-.cl-internal-17jah1m,
-[data-localization-key*="secured"] {
+/* "Don't have an account?" / "Already have an account?" — low opacity */
+[class*="cl-footerAction"] [class*="cl-footerActionText"],
+[class*="cl-footerAction"] [class*="cl-footerActionText"] * {
+  color: rgba(255,255,255,0.45) !important;
+}
+/* "Last used" badge + "Secured by" + "Development mode" — light gray */
+[class*="cl-badge"],
+[class*="cl-badge"] *,
+[class*="cl-footerPages"],
+[class*="cl-footerPages"] *,
+[class*="cl-footerPages"] svg,
+[class*="cl-footerPages"] path {
   color: #b0b0b0 !important;
+  fill: #b0b0b0 !important;
 }
 
 @keyframes shine {

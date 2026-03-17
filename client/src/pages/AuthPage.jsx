@@ -7,8 +7,10 @@ import ShinyText from "@/components/ui/ShinyText";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
-const SCENE_DESKTOP = "https://prod.spline.design/91IF-tZHO1Goh4b0/scene.splinecode";
-const SCENE_MOBILE  = "https://prod.spline.design/MNy9pyp-kwnNsv4T/scene.splinecode";
+const SCENE_DESKTOP =
+  "https://prod.spline.design/91IF-tZHO1Goh4b0/scene.splinecode";
+const SCENE_MOBILE =
+  "https://prod.spline.design/MNy9pyp-kwnNsv4T/scene.splinecode";
 
 const clerkAppearance = {
   variables: {
@@ -34,7 +36,7 @@ const clerkAppearance = {
       background: "transparent",
       boxShadow: "none",
       border: "none",
-      padding: "0.5rem 1.25rem 1rem",
+      padding: "1rem 1.25rem 1rem",
       width: "100%",
       borderRadius: "0",
     },
@@ -92,11 +94,12 @@ const clerkAppearance = {
     },
     footerPages: { background: "transparent" },
     footerPagesLink: { color: "rgba(255,255,255,0.4)", fontSize: "0.7rem" },
+    footerItem: { color: "rgba(255,255,255,0.5)", fontSize: "0.7rem" },
 
     badge: {
-      background: "rgba(0,168,132,0.18)",
-      color: "#00A884",
-      border: "1px solid rgba(0,168,132,0.35)",
+      background: "rgba(255,255,255,0.1)",
+      color: "#ffffff",
+      border: "1px solid rgba(255,255,255,0.2)",
       borderRadius: "999px",
       fontSize: "0.65rem",
       fontWeight: "600",
@@ -117,11 +120,7 @@ const clerkAppearance = {
 };
 
 function removeSplineWatermark() {
-  const selectors = [
-    "#logo",
-    "a[href*='spline.design']",
-    "a[href*='spline']",
-  ];
+  const selectors = ["#logo", "a[href*='spline.design']", "a[href*='spline']"];
   selectors.forEach((sel) => {
     document.querySelectorAll(sel).forEach((el) => el.remove());
   });
@@ -131,8 +130,8 @@ export default function AuthPage() {
   const { isSignedIn } = useUser();
   const [mode, setMode] = useState("signin");
   const loaderRef = useRef(null);
-  const brandRef  = useRef(null);
-  const cardRef   = useRef(null);
+  const brandRef = useRef(null);
+  const cardRef = useRef(null);
   const formTimerRef = useRef(null);
   const cardShown = useRef(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
@@ -168,7 +167,10 @@ export default function AuthPage() {
   const initialMode = useRef(mode);
   useLayoutEffect(() => {
     if (!cardRef.current || !cardShown.current) return;
-    if (mode === initialMode.current) { initialMode.current = null; return; }
+    if (mode === initialMode.current) {
+      initialMode.current = null;
+      return;
+    }
     const ctx = gsap.context(() => {
       gsap.fromTo(
         cardRef.current,
