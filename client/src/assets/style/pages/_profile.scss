@@ -1,0 +1,540 @@
+@use "../settings/settings" as *;
+
+.profile-page {
+  width: 100dvw;
+  height: 100dvh;
+  overflow-y: auto;
+  background: var(--body-bg-clr);
+  @include flex(flex-start, flex-start, column, 0);
+
+  // ─── Header bar ──────────────────────────────────────────────────
+  .profile-header-bar {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    @include flex(center, space-between, row, var(--space-2));
+    background: var(--body-bg-clr);
+    border-bottom: 1px solid var(--body-bg-clr-gray);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    .back-btn {
+      --size: 40px;
+      width: var(--size);
+      height: var(--size);
+      border-radius: var(--border-radius-circle);
+      @include center();
+      background: var(--body-bg-clr-gray);
+      cursor: pointer;
+      svg { width: var(--svg-size); height: var(--svg-size); }
+    }
+
+    h2 { @include h6(); font-family: var(--arabic-fm-b); }
+    .spacer { width: 40px; }
+  }
+
+  // ─── Hero / info block ───────────────────────────────────────────
+  .profile-hero {
+    width: 100%;
+    padding: var(--space-3);
+    @include flex(flex-start, flex-start, row, var(--space-3));
+    border-bottom: 1px solid var(--body-bg-clr-gray);
+
+    .avatar-wrap {
+      position: relative;
+      flex-shrink: 0;
+      cursor: pointer;
+
+      .avatar-large {
+        --size: 80px;
+        width: var(--size);
+        height: var(--size);
+        border-radius: var(--border-radius-circle);
+        background: var(--secondary-clr);
+        @include center();
+        overflow: hidden;
+
+        img { width: 100%; height: 100%; object-fit: cover; }
+
+        .avatar-initials {
+          @include h4();
+          font-family: var(--arabic-fm-b);
+          color: var(--txt-clr-light);
+        }
+      }
+
+      .avatar-edit-overlay {
+        position: absolute;
+        inset: 0;
+        border-radius: var(--border-radius-circle);
+        background: #00000066;
+        @include center();
+        opacity: 0;
+        transition: opacity 0.2s;
+
+        svg { width: 20px; height: 20px; color: #fff; }
+      }
+
+      &:hover .avatar-edit-overlay { opacity: 1; }
+    }
+
+    .profile-meta {
+      flex: 1;
+      min-width: 0;
+      @include flex(flex-start, flex-start, column, var(--space-1));
+
+      .stats-row {
+        @include flex(center, flex-start, row, var(--space-4));
+        margin-bottom: var(--space-mini);
+
+        .stat {
+          @include flex(center, center, column, 2px);
+
+          .stat-num {
+            @include h6();
+            font-family: var(--arabic-fm-b);
+          }
+          .stat-label {
+            @include small();
+            color: var(--txt-clr-dark);
+          }
+        }
+      }
+
+      .display-name {
+        @include p();
+        font-family: var(--arabic-fm-b);
+      }
+
+      .username {
+        @include small();
+        color: var(--txt-clr-dark);
+      }
+
+      .bio {
+        @include small();
+        color: var(--txt-clr);
+        white-space: pre-wrap;
+        margin-top: var(--space-mini);
+      }
+    }
+  }
+
+  // ─── Edit profile form ───────────────────────────────────────────
+  .edit-form {
+    width: 100%;
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--body-bg-clr-gray);
+    @include flex(flex-start, flex-start, column, var(--space-2));
+
+    .form-group {
+      width: 100%;
+      @include flex(flex-start, flex-start, column, var(--space-mini));
+
+      label {
+        @include small();
+        font-family: var(--arabic-fm-b);
+        color: var(--txt-clr-dark);
+      }
+
+      input, textarea {
+        width: 100%;
+        padding: var(--space-1) var(--space-2);
+        border-radius: var(--border-radius-large);
+        border: 1px solid var(--body-bg-clr-gray);
+        background: var(--body-bg-clr-gray);
+        @include p();
+        font-family: var(--arabic-fm-r);
+        color: var(--txt-clr);
+        outline: none;
+        resize: vertical;
+
+        &:focus { border-color: var(--primary-clr); }
+      }
+    }
+
+    .form-actions {
+      @include flex(center, flex-end, row, var(--space-2));
+      width: 100%;
+    }
+  }
+
+  // ─── Action buttons ──────────────────────────────────────────────
+  .profile-actions {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    @include flex(center, flex-start, row, var(--space-2));
+    border-bottom: 1px solid var(--body-bg-clr-gray);
+  }
+
+  .btn {
+    padding: 7px var(--space-2);
+    border-radius: var(--border-radius-large3);
+    @include small();
+    font-family: var(--arabic-fm-b);
+    cursor: pointer;
+    transition: opacity 0.15s;
+
+    &:hover { opacity: 0.8; }
+
+    &.btn-primary   { background: var(--primary-clr); color: var(--txt-clr-light); }
+    &.btn-secondary { background: var(--body-bg-clr-gray); color: var(--txt-clr); }
+    &.btn-danger    { background: var(--txt-clr-error); color: var(--txt-clr-light); }
+  }
+
+  // ─── Post grid ───────────────────────────────────────────────────
+  .posts-grid {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    padding-bottom: var(--space-4);
+
+    .post-thumb {
+      aspect-ratio: 1;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+      background: var(--body-bg-clr-gray);
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.2s;
+      }
+
+      .post-overlay {
+        position: absolute;
+        inset: 0;
+        background: #00000055;
+        @include flex(center, center, row, var(--space-2));
+        opacity: 0;
+        transition: opacity 0.2s;
+
+        span {
+          @include small();
+          font-family: var(--arabic-fm-b);
+          color: #fff;
+          @include flex(center, center, row, 4px);
+
+          svg { width: 16px; height: 16px; }
+        }
+      }
+
+      &:hover img { transform: scale(1.03); }
+      &:hover .post-overlay { opacity: 1; }
+    }
+
+    .add-post-btn {
+      aspect-ratio: 1;
+      background: var(--body-bg-clr-gray);
+      @include center();
+      cursor: pointer;
+      border: 2px dashed var(--txt-clr-lightgray);
+      transition: border-color 0.2s;
+
+      &:hover { border-color: var(--primary-clr); }
+
+      svg { width: 32px; height: 32px; color: var(--txt-clr-dark); }
+    }
+  }
+
+  .empty-posts {
+    width: 100%;
+    padding: var(--space-6) var(--space-3);
+    @include flex(center, center, column, var(--space-2));
+
+    svg { width: 48px; height: 48px; color: var(--txt-clr-lightgray); }
+    p { @include p(); color: var(--txt-clr-dark); text-align: center; }
+  }
+}
+
+// ─── Post modal (shared by ProfilePage + UserProfilePage) ─────────────
+.post-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000000cc;
+  z-index: 100;
+  @include flex(center, center, row, 0);
+  padding: var(--space-2);
+
+  .post-modal {
+    width: min(520px, 100%);
+    max-height: 90dvh;
+    background: var(--body-bg-clr);
+    border-radius: var(--border-radius-large3);
+    overflow: hidden;
+    @include flex(flex-start, flex-start, column, 0);
+    position: relative;
+
+    .modal-close {
+      position: absolute;
+      top: var(--space-2);
+      right: var(--space-2);
+      --size: 32px;
+      width: var(--size);
+      height: var(--size);
+      border-radius: var(--border-radius-circle);
+      background: #000000aa;
+      @include center();
+      cursor: pointer;
+      z-index: 2;
+
+      svg { width: 18px; height: 18px; color: #fff; }
+    }
+
+    .modal-image {
+      width: 100%;
+      aspect-ratio: 1;
+      overflow: hidden;
+      background: #000;
+      flex-shrink: 0;
+
+      img { width: 100%; height: 100%; object-fit: contain; }
+    }
+
+    .modal-body {
+      width: 100%;
+      flex: 1;
+      overflow-y: auto;
+      @include flex(flex-start, flex-start, column, 0);
+
+      .modal-header {
+        width: 100%;
+        padding: var(--space-2) var(--space-3);
+        @include flex(center, space-between, row, var(--space-2));
+        border-bottom: 1px solid var(--body-bg-clr-gray);
+
+        .author-info {
+          @include flex(center, flex-start, row, var(--space-1));
+
+          .mini-avatar {
+            --size: 36px;
+            width: var(--size);
+            height: var(--size);
+            border-radius: var(--border-radius-circle);
+            background: var(--secondary-clr);
+            @include center();
+            overflow: hidden;
+
+            img { width: 100%; height: 100%; object-fit: cover; }
+
+            span {
+              @include small();
+              font-family: var(--arabic-fm-b);
+              color: var(--txt-clr-light);
+            }
+          }
+
+          .author-name {
+            @include p();
+            font-family: var(--arabic-fm-b);
+          }
+        }
+
+        .modal-actions {
+          @include flex(center, center, row, var(--space-1));
+        }
+      }
+
+      .modal-caption {
+        padding: var(--space-1) var(--space-3);
+        @include small();
+        color: var(--txt-clr);
+        white-space: pre-wrap;
+        border-bottom: 1px solid var(--body-bg-clr-gray);
+      }
+
+      .modal-likes {
+        padding: var(--space-1) var(--space-3);
+        @include flex(center, flex-start, row, var(--space-1));
+        border-bottom: 1px solid var(--body-bg-clr-gray);
+
+        button {
+          @include flex(center, center, row, var(--space-mini));
+          @include small();
+          font-family: var(--arabic-fm-b);
+          cursor: pointer;
+
+          svg { width: 20px; height: 20px; }
+
+          &.liked svg { fill: var(--txt-clr-error); stroke: var(--txt-clr-error); }
+        }
+
+        span {
+          @include small();
+          color: var(--txt-clr-dark);
+        }
+      }
+
+      .modal-comments {
+        width: 100%;
+        flex: 1;
+        padding: var(--space-1) var(--space-3);
+        @include flex(flex-start, flex-start, column, var(--space-2));
+
+        .comment-item {
+          width: 100%;
+          @include flex(flex-start, flex-start, row, var(--space-1));
+
+          .mini-avatar {
+            --size: 28px;
+            width: var(--size);
+            height: var(--size);
+            border-radius: var(--border-radius-circle);
+            background: var(--secondary-clr);
+            @include center();
+            flex-shrink: 0;
+            overflow: hidden;
+
+            img { width: 100%; height: 100%; object-fit: cover; }
+            span { font-size: 10px; font-family: var(--arabic-fm-b); color: var(--txt-clr-light); }
+          }
+
+          .comment-content {
+            flex: 1;
+            min-width: 0;
+
+            .comment-author {
+              @include small();
+              font-family: var(--arabic-fm-b);
+            }
+
+            .comment-text {
+              @include small();
+              color: var(--txt-clr);
+              white-space: pre-wrap;
+              word-break: break-word;
+            }
+          }
+
+          .delete-comment-btn {
+            padding: 2px;
+            opacity: 0;
+            transition: opacity 0.15s;
+            svg { width: 14px; height: 14px; color: var(--txt-clr-error); }
+          }
+
+          &:hover .delete-comment-btn { opacity: 1; }
+        }
+
+        .no-comments {
+          @include small();
+          color: var(--txt-clr-dark);
+          padding: var(--space-2) 0;
+        }
+      }
+
+      .comment-input-row {
+        width: 100%;
+        padding: var(--space-2) var(--space-3);
+        @include flex(center, flex-start, row, var(--space-1));
+        border-top: 1px solid var(--body-bg-clr-gray);
+        position: sticky;
+        bottom: 0;
+        background: var(--body-bg-clr);
+
+        input {
+          flex: 1;
+          padding: var(--space-1) var(--space-2);
+          border-radius: var(--border-radius-large3);
+          background: var(--body-bg-clr-gray);
+          border: none;
+          outline: none;
+          @include small();
+          font-family: var(--arabic-fm-r);
+          color: var(--txt-clr);
+
+          &::placeholder { color: var(--txt-clr-dark); }
+        }
+
+        button {
+          @include small();
+          font-family: var(--arabic-fm-b);
+          color: var(--primary-clr);
+          cursor: pointer;
+          padding: var(--space-mini) var(--space-1);
+
+          &:disabled { opacity: 0.4; cursor: default; }
+        }
+      }
+    }
+  }
+}
+
+// ─── New post upload modal ────────────────────────────────────────────
+.upload-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: #000000cc;
+  z-index: 100;
+  @include flex(center, center, row, 0);
+  padding: var(--space-2);
+
+  .upload-modal {
+    width: min(420px, 100%);
+    background: var(--body-bg-clr);
+    border-radius: var(--border-radius-large3);
+    overflow: hidden;
+    @include flex(flex-start, flex-start, column, 0);
+
+    .upload-modal-header {
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      @include flex(center, space-between, row, 0);
+      border-bottom: 1px solid var(--body-bg-clr-gray);
+
+      h3 { @include p(); font-family: var(--arabic-fm-b); }
+
+      button {
+        @include small();
+        font-family: var(--arabic-fm-b);
+        color: var(--txt-clr-dark);
+        cursor: pointer;
+      }
+    }
+
+    .upload-preview {
+      width: 100%;
+      aspect-ratio: 1;
+      background: var(--body-bg-clr-gray);
+      @include center();
+      overflow: hidden;
+      cursor: pointer;
+
+      img { width: 100%; height: 100%; object-fit: cover; }
+
+      .upload-placeholder {
+        @include flex(center, center, column, var(--space-1));
+        svg { width: 48px; height: 48px; color: var(--txt-clr-lightgray); }
+        span { @include small(); color: var(--txt-clr-dark); }
+      }
+    }
+
+    .upload-caption {
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      border-bottom: 1px solid var(--body-bg-clr-gray);
+
+      textarea {
+        width: 100%;
+        border: none;
+        outline: none;
+        @include small();
+        font-family: var(--arabic-fm-r);
+        color: var(--txt-clr);
+        resize: none;
+        background: transparent;
+
+        &::placeholder { color: var(--txt-clr-dark); }
+      }
+    }
+
+    .upload-actions {
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      @include flex(center, flex-end, row, var(--space-2));
+    }
+  }
+}

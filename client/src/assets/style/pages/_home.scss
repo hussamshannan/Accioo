@@ -1,0 +1,216 @@
+@use "../settings/settings" as *;
+
+/* ─── Global conv-menu dropdown ─────────────────────────────────────────
+   Reuses the same visual language as the ChatPage nav dropdown but lives
+   outside .container nav so it works in any page context.
+──────────────────────────────────────────────────────────────────────── */
+.conv-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--body-bg-clr-frosted);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  padding: 6px;
+  min-width: 210px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.22);
+  z-index: 9999;
+  transform-origin: top right;
+
+  /* Override the global * { color: var(--txt-clr) } for borders etc. */
+  border-color: rgba(255, 255, 255, 0.14);
+
+  .dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    transition: background 0.12s ease;
+
+    &:active { background: var(--body-bg-clr-gray); }
+
+    .dropdown-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: grid;
+      place-content: center;
+      flex-shrink: 0;
+
+      svg {
+        width: 17px;
+        height: 17px;
+      }
+    }
+
+    .dropdown-label {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--txt-clr);
+      flex: 1;
+    }
+  }
+
+  .dropdown-divider {
+    height: 1px;
+    background: var(--accent-clr);
+    margin: 4px 8px;
+    opacity: 0.5;
+  }
+}
+
+/* Dark mode adjustments */
+.theme-dark .conv-dropdown {
+  border-color: rgba(255, 255, 255, 0.10);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+}
+
+.home-page {
+  width: 100dvw;
+  height: 100dvh;
+  overflow-y: auto;
+  background: var(--body-bg-clr-gray);
+  @include flex(flex-start, flex-start, column, 0);
+
+  .home-header {
+    width: 100%;
+    padding: var(--space-2) var(--space-3);
+    @include flex(center, space-between, row, var(--space-2));
+    background: var(--body-bg-clr);
+    border-bottom: 1px solid var(--body-bg-clr-gray);
+
+    h1 {
+      @include h5();
+      font-family: var(--arabic-fm-b);
+    }
+
+    .header-actions {
+      @include flex(center, center, row, var(--space-2));
+
+      button {
+        --size: 40px;
+        width: var(--size);
+        height: var(--size);
+        border-radius: var(--border-radius-circle);
+        @include center();
+        background: var(--body-bg-clr-gray);
+
+        svg {
+          width: var(--svg-size);
+          height: var(--svg-size);
+        }
+      }
+    }
+  }
+
+  .conversations-list {
+    width: 100%;
+    @include flex(stretch, flex-start, column, 0);
+
+    .conversation-item {
+      width: 100%;
+      padding: var(--space-2) var(--space-3);
+      @include flex(center, flex-start, row, var(--space-2));
+      cursor: pointer;
+      transition: background 0.2s ease;
+      border-bottom: 1px solid var(--body-bg-clr-gray);
+
+      &:hover {
+        background: var(--body-bg-clr-gray);
+      }
+
+      .avatar {
+        --size: 50px;
+        width: var(--size);
+        height: var(--size);
+        border-radius: var(--border-radius-circle);
+        background: var(--secondary-clr);
+        @include center();
+        flex-shrink: 0;
+        overflow: hidden;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .avatar-initials {
+          @include h6();
+          font-family: var(--arabic-fm-b);
+          color: var(--txt-clr-light);
+        }
+      }
+
+      .conversation-info {
+        flex: 1;
+        min-width: 0;
+        @include flex(flex-start, center, column, var(--space-mini));
+
+        .conversation-name {
+          @include p();
+          font-family: var(--arabic-fm-b);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: 100%;
+        }
+
+        .last-message {
+          @include small();
+          color: var(--txt-clr-dark);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          width: 100%;
+        }
+      }
+
+      .conversation-meta {
+        @include flex(flex-end, center, column, var(--space-mini));
+        flex-shrink: 0;
+
+        .time {
+          @include small();
+          color: var(--txt-clr-dark);
+        }
+
+        .unread-badge {
+          --size: 20px;
+          min-width: var(--size);
+          height: var(--size);
+          border-radius: var(--border-radius-circle);
+          background: var(--txt-clr-info);
+          @include center();
+          @include small();
+          color: var(--txt-clr-light);
+          padding: 0 var(--space-mini);
+        }
+      }
+    }
+  }
+
+  .empty-state {
+    width: 100%;
+    flex: 1;
+    @include flex(center, center, column, var(--space-2));
+    padding: var(--space-4);
+
+    p {
+      @include p();
+      color: var(--txt-clr-dark);
+      text-align: center;
+    }
+  }
+}

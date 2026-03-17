@@ -1,0 +1,75 @@
+@use "../settings/settings" as *;
+
+.container .chat {
+  position: fixed;
+  bottom: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  z-index: 10;
+  opacity: 1;
+  @include flex(center, center, column, var(--space-1));
+
+  .messages {
+    position: relative;
+    width: clamp(300px, 100%, 1200px);
+    height: 100dvh;
+    overflow-y: scroll !important;
+    @include flex(flex-start, baseline, column, var(--space-mini));
+    padding: var(--space-1);
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent !important;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(0, 0, 0, 0.15);
+      border-radius: 4px;
+    }
+  }
+}
+
+/* ── Upload error banner ── */
+.upload-error-banner {
+  position: fixed;
+  bottom: calc(var(--dock-height, 64px) + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--txt-clr-error);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 9999;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  max-width: 90vw;
+  text-align: center;
+
+  button {
+    background: none;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 0;
+    line-height: 1;
+  }
+}
+
+/* ── Desktop: absolute so it's contained within the panel ── */
+.desktop-main .container .chat {
+  position: absolute;
+  height: 100%;
+
+  .messages {
+    height: 100%;
+  }
+}

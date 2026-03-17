@@ -1,0 +1,35 @@
+@use "../settings/settings" as *;
+
+.container .chat .messages .emoji-picker-container {
+  z-index: 2000;
+  background: var(--body-bg-clr-transparent) !important;
+  backdrop-filter: blur(var(--space-3)) brightness(1.5) saturate(2.5) !important;
+  border-radius: var(--border-radius-large2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  padding: var(--space-1);
+  width: clamp(100px, 270px, 500px);
+  @include center();
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+
+  .emoji-picker {
+    position: relative;
+    width: 100%;
+    @include flex(center, space-between, row, 0.3rem);
+    padding-inline: var(--space-1);
+
+    button {
+      scale: 0.3;
+      opacity: 0;
+      overflow: hidden;
+      font-size: var(--font-p);
+    }
+  }
+}
+
+.container .chat .messages .typing-indicator {
+  margin-top: auto;
+  padding: var(--space-2);
+  @include center();
+}

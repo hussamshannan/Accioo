@@ -1,0 +1,20 @@
+@use "../settings/settings" as *;
+
+.auth-page {
+  width: 100dvw;
+  height: 100dvh;
+  @include flex(center, center, column, var(--space-3));
+  background: var(--body-bg-clr-gray);
+
+  .auth-container {
+    width: clamp(300px, 90%, 450px);
+    @include flex(center, center, column, var(--space-2));
+  }
+
+  .auth-logo {
+    @include h3();
+    font-family: var(--arabic-fm-b);
+    color: var(--primary-clr);
+  }
+
+}

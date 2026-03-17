@@ -1,0 +1,376 @@
+@use "../settings/settings" as *;
+
+.container {
+  position: relative;
+  width: 100dvw;
+  max-width: 14500px;
+  height: 100dvh;
+  overflow: hidden;
+  border-radius: var(--border-radius-large2);
+  @include flex(center, space-between, column, 0rem);
+
+  /* ── Desktop: fill the panel, drop viewport-relative sizing ── */
+  .desktop-main & {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+
+    > video,
+    > .img-bg {
+      position: absolute;
+      border-radius: 0;
+    }
+
+    nav {
+      position: absolute;
+      top: 0;
+    }
+  }
+
+  > video {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    top: 0;
+    z-index: 10;
+    user-select: none;
+    -webkit-user-drag: none;
+    border-radius: var(--border-radius-large2);
+  }
+
+  > .img-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    position: fixed;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    border-radius: var(--border-radius-large2);
+    img {
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+  }
+
+  nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 68px;
+    background: transparent; /* elements carry their own frosted glass */
+    @include flex(center, space-between, row, var(--space-1));
+    padding: var(--space-1) var(--space-2);
+    z-index: 20;
+
+    /* ── Back pill ── */
+    .nav-back-pill {
+      @include flex(center, center, row, 6px);
+      padding: 8px 14px;
+      background: var(--body-bg-clr-frosted);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      border-radius: 50px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+
+      &:active { transform: scale(0.94); }
+
+      svg {
+        width: 18px;
+        height: 18px;
+        flex-shrink: 0;
+      }
+
+      .nav-back-badge {
+        background: rgba(0, 0, 0, 0.55);
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        border-radius: 50px;
+        padding: 2px 7px;
+        min-width: 20px;
+        height: 20px;
+        @include flex(center, center, row, 0);
+        line-height: 1;
+      }
+    }
+
+    /* ── Center pill ── */
+    .nav-center-pill {
+      flex: 1;
+      max-width: 260px;
+      @include flex(center, center, column, 2px);
+      padding: 8px 18px;
+      background: var(--body-bg-clr-frosted);
+      backdrop-filter: blur(18px) saturate(180%);
+      -webkit-backdrop-filter: blur(18px) saturate(180%);
+      border-radius: 50px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.15s ease;
+
+      &:active { transform: scale(0.97); }
+
+      .nav-name {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--txt-clr);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        line-height: 1.2;
+      }
+
+      .nav-status {
+        font-size: 11px;
+        color: var(--txt-clr-dark);
+        white-space: nowrap;
+        line-height: 1;
+
+        &.online { color: var(--primary-clr); }
+      }
+    }
+
+    /* ── Avatar button (right) ── */
+    .nav-avatar-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .nav-avatar-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--border-radius-circle);
+      overflow: hidden;
+      background: var(--accent-clr);
+      @include center();
+      cursor: pointer;
+      border: 2.5px solid rgba(255, 255, 255, 0.35);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+      transition: transform 0.15s ease;
+
+      &:active { transform: scale(0.92); }
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        pointer-events: none;
+      }
+
+      .nav-avatar-initial {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--txt-clr);
+      }
+    }
+
+    /* ── Dropdown menu ── */
+    .nav-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--body-bg-clr-frosted);
+      backdrop-filter: blur(24px) saturate(200%);
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 18px;
+      padding: 6px;
+      min-width: 230px;
+      @include flex(stretch, flex-start, column, 2px);
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.22);
+      z-index: 30;
+      transform-origin: top right;
+
+      .dropdown-item {
+        @include flex(center, flex-start, row, 12px);
+        padding: 11px 12px;
+        border-radius: 12px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        transition: background 0.12s ease;
+
+        &:active { background: var(--body-bg-clr-gray); }
+
+        .dropdown-icon {
+          width: 34px;
+          height: 34px;
+          border-radius: var(--border-radius-circle);
+          @include center();
+          flex-shrink: 0;
+
+          svg {
+            width: 17px;
+            height: 17px;
+          }
+        }
+
+        .dropdown-label {
+          font-size: 15px;
+          font-weight: 500;
+          color: var(--txt-clr);
+          flex: 1;
+        }
+      }
+
+      /* Thin divider between groups */
+      .dropdown-divider {
+        height: 1px;
+        background: var(--accent-clr);
+        margin: 4px 8px;
+        opacity: 0.5;
+      }
+    }
+  }
+
+  /* Search bar that slides down below the nav */
+  .chat-search-bar {
+    position: fixed;
+    top: 68px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: clamp(300px, 100%, 600px);
+    z-index: 19;
+    background: var(--body-bg-clr-frosted);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    transition: max-height 0.25s ease, opacity 0.25s ease;
+    @include flex(center, space-between, row, var(--space-1));
+    padding: 0 var(--space-2);
+
+    &.open {
+      max-height: 48px;
+      opacity: 1;
+      padding: var(--space-1) var(--space-2);
+    }
+
+    input {
+      flex: 1;
+      height: 32px;
+      background: var(--body-bg-clr-gray);
+      border: 1px solid var(--accent-clr);
+      border-radius: var(--border-radius-large3);
+      padding: 0 var(--space-2);
+      outline: none;
+      @include small();
+      color: var(--txt-clr);
+    }
+
+    .search-count {
+      @include small();
+      color: var(--txt-clr-dark);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+  }
+
+  /* Chat area is transparent — wallpaper shows through */
+  .chat {
+    background: transparent !important;
+  }
+
+  /* Wallpaper picker sheet */
+  .wallpaper-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  .wallpaper-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 61;
+    width: clamp(300px, 100%, 600px);
+    background: var(--body-bg-clr);
+    border-radius: 24px 24px 0 0;
+    padding: 20px 16px calc(env(safe-area-inset-bottom) + 20px);
+    @include flex(stretch, flex-start, column, var(--space-2));
+    max-height: 80vh;
+
+    &::before {
+      content: "";
+      align-self: center;
+      width: 36px;
+      height: 4px;
+      border-radius: 2px;
+      background: var(--accent-clr);
+      margin-bottom: var(--space-mini);
+    }
+
+    h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--txt-clr);
+    }
+
+    .wallpaper-upload-btn {
+      @include flex(center, flex-start, row, var(--space-1));
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--border-radius-large);
+      border: 1px dashed var(--accent-clr);
+      background: var(--body-bg-clr-gray);
+      color: var(--primary-clr);
+      @include small();
+      font-weight: 600;
+      cursor: pointer;
+      gap: var(--space-1);
+    }
+
+    .wallpaper-current {
+      @include small();
+      color: var(--txt-clr-dark);
+      margin-top: -8px;
+    }
+
+    .wallpaper-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-1);
+      overflow-y: auto;
+      padding-bottom: var(--space-1);
+
+      .wallpaper-thumb {
+        aspect-ratio: 9 / 16;
+        border-radius: var(--border-radius-large);
+        overflow: hidden;
+        cursor: pointer;
+        border: 2.5px solid transparent;
+        transition: border-color 0.15s, transform 0.15s;
+
+        &.selected {
+          border-color: var(--primary-clr);
+          transform: scale(0.96);
+        }
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          pointer-events: none;
+          user-select: none;
+        }
+      }
+    }
+  }
+}

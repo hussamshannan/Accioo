@@ -1,0 +1,324 @@
+@use "../settings/settings" as *;
+
+.container .dock {
+  width: clamp(300px, calc(100% - var(--space-2)), 600px);
+  background: var(--body-bg-clr-frosted);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: fixed;
+  padding: var(--space-1) var(--space-2);
+  bottom: var(--space-2);
+  height: auto;
+  border-radius: var(--border-radius-large3);
+  @include flex(center, center, column, 0);
+  z-index: 20;
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1);
+
+  /* Desktop: contained within panel */
+  .desktop-main & {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .message-input-form {
+    width: 100%;
+    position: relative;
+    height: auto;
+    @include flex(center, space-between, row, var(--space-1));
+    padding: 0;
+
+    textarea {
+      flex: 1;
+      height: fit-content;
+      max-height: 30ch;
+      padding: var(--space-1) var(--space-2);
+      text-align: auto;
+      background: var(--body-bg-clr-gray);
+      border: 1px solid var(--accent-clr);
+      outline: none;
+      @include p();
+      resize: none;
+      line-height: 95% !important;
+      color: var(--txt-clr);
+      field-sizing: content !important;
+      border-radius: var(--border-radius-large3);
+    }
+
+    .bright-placeholder::placeholder {
+      color: var(--txt-clr-disabled);
+      @include small();
+    }
+
+    .dark-placeholder::placeholder {
+      color: var(--txt-clr-disabled);
+      @include small();
+    }
+
+    button {
+      width: var(--svg-size);
+      height: var(--svg-size);
+      @include center();
+      flex-shrink: 0;
+      svg {
+        width: var(--svg-size);
+        height: var(--svg-size);
+        transition: all 0.5s ease !important;
+      }
+    }
+
+    .sendButton,
+    .editButton {
+      opacity: 0;
+      width: 0;
+      display: none;
+      pointer-events: none;
+      transition: all 0.1s linear;
+    }
+
+    /* Voice mic button (right side, hidden when typing) */
+    .plusButton {
+      opacity: 1;
+      width: var(--svg-size);
+      display: grid;
+      pointer-events: all;
+      transition: all 0.1s linear;
+    }
+  }
+}
+
+/* ── Reply preview bar (inside dock, above textarea) ─────────────────────── */
+.container .dock .reply-preview-bar {
+  @include flex(center, flex-start, row, var(--space-mini));
+  width: 100%;
+  background: var(--body-bg-clr-gray);
+  border-radius: var(--border-radius-large);
+  margin-bottom: var(--space-mini);
+  overflow: hidden;
+  padding-block: var(--space-mini);
+  padding-inline-end: var(--space-1);
+
+  .reply-preview-accent {
+    width: 3px;
+    align-self: stretch;
+    background: var(--primary-clr);
+    border-radius: 3px;
+    flex-shrink: 0;
+    margin-inline-end: var(--space-mini);
+  }
+
+  .reply-preview-content {
+    flex: 1;
+    @include flex(flex-start, flex-start, column, 2px);
+    overflow: hidden;
+
+    .reply-preview-author {
+      font-size: 0.7rem;
+      font-weight: 600;
+      color: var(--primary-clr);
+    }
+
+    .reply-preview-text {
+      @include small();
+      color: var(--txt-clr-dark);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+  }
+
+  .reply-preview-close {
+    width: 24px;
+    height: 24px;
+    @include center();
+    border-radius: var(--border-radius-circle);
+    background: var(--accent-clr);
+    flex-shrink: 0;
+
+    svg {
+      width: 14px;
+      height: 14px;
+    }
+  }
+}
+.dock:has(.reply-preview-bar) {
+  border-radius: var(--border-radius-large2);
+}
+/* ── Recording indicator ─────────────────────────────────────────────────── */
+.container .dock .recording-indicator {
+  @include flex(center, flex-start, row, var(--space-1));
+  width: 100%;
+  padding: var(--space-mini) var(--space-1);
+  margin-bottom: var(--space-mini);
+
+  .recording-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: var(--border-radius-circle);
+    background: var(--txt-clr-error);
+    flex-shrink: 0;
+    animation: recording-blink 1s ease infinite;
+  }
+
+  .recording-time {
+    @include small();
+    font-weight: 600;
+    color: var(--txt-clr-error);
+    min-width: 36px;
+  }
+
+  .recording-label {
+    @include small();
+    color: var(--txt-clr-dark);
+    flex: 1;
+  }
+
+  .recording-cancel {
+    @include small();
+    color: var(--txt-clr-error);
+    padding: 2px var(--space-1);
+    border-radius: var(--border-radius-large);
+    background: transparent;
+  }
+}
+
+@keyframes recording-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* ── Scroll-to-bottom floating button ────────────────────────────────────── */
+.container .scroll-to-bottom-btn {
+  position: fixed;
+  right: 50%;
+  transform: translateX(50%);
+  z-index: 30;
+
+  .desktop-main & {
+    position: absolute;
+  }
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius-circle);
+  background: var(--body-bg-clr-frosted);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  @include center();
+  cursor: pointer;
+
+  .scroll-unread-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: var(--primary-clr);
+    color: var(--txt-clr-light);
+    font-size: 0.65rem;
+    font-weight: 700;
+    width: 18px;
+    height: 18px;
+    border-radius: var(--border-radius-circle);
+    @include center();
+  }
+}
+
+/* ── Context menu sheet ──────────────────────────────────────────────────── */
+.context-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.context-menu-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 51;
+  width: clamp(300px, 100%, 600px);
+  background: var(--body-bg-clr);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-radius: var(--border-radius-large4) var(--border-radius-large4) 0 0;
+  padding: var(--space-2);
+  @include flex(stretch, flex-start, column, var(--space-1));
+
+  /* Drag handle */
+  &::before {
+    content: "";
+    align-self: center;
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--accent-clr);
+    margin-bottom: var(--space-mini);
+  }
+
+  .context-menu-preview {
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--border-radius-large);
+    background: var(--body-bg-clr-gray);
+    margin-bottom: var(--space-1);
+
+    .context-preview-text {
+      @include p();
+      color: var(--txt-clr);
+      max-height: 80px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+
+    .context-preview-img {
+      width: 100%;
+      max-height: 120px;
+      object-fit: cover;
+      border-radius: var(--border-radius-large);
+    }
+
+    .context-preview-audio {
+      @include small();
+      color: var(--txt-clr-dark);
+    }
+  }
+
+  .context-menu-actions {
+    @include flex(stretch, flex-start, column, 2px);
+
+    .context-action {
+      @include flex(center, flex-start, row, var(--space-2));
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--border-radius-large);
+      background: transparent;
+      color: var(--txt-clr);
+      @include p();
+      transition: background 0.15s ease;
+
+      &:active {
+        background: var(--body-bg-clr-gray);
+      }
+
+      svg {
+        flex-shrink: 0;
+      }
+    }
+
+    .context-delete {
+      color: var(--txt-clr-error);
+      svg {
+        stroke: var(--txt-clr-error);
+      }
+    }
+  }
+}

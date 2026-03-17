@@ -1,0 +1,182 @@
+@font-face {
+  font-family: "Regular";
+  src: url("../../fonts/Tajawal/Tajawal-Regular.ttf");
+}
+
+@font-face {
+  font-family: "Bold";
+  src: url("../../fonts/Tajawal/Tajawal-Bold.ttf");
+}
+
+:root {
+  // font-family
+  --arabic-fm-r: "Regular", sans-serif;
+  --arabic-fm-b: "Bold", sans-serif;
+  /* Modular scale ratio */
+  --ratio: 1.2;
+
+  /* Base font size */
+  --font-p: 1rem; /* 16px base */
+
+  /* Derived font sizes */
+  --font-small: calc(var(--font-p) / var(--ratio)); /* ~13.33px */
+  --font-h6: calc(var(--font-p) * var(--ratio)); /* ~19.2px */
+  --font-h5: calc(var(--font-h6) * var(--ratio)); /* ~23.04px */
+  --font-h4: calc(var(--font-h5) * var(--ratio)); /* ~27.65px */
+  --font-h3: calc(var(--font-h4) * var(--ratio)); /* ~33.18px */
+  --font-h2: calc(var(--font-h3) * var(--ratio)); /* ~39.81px */
+  --font-h1: calc(var(--font-h2) * var(--ratio)); /* ~47.77px */
+
+  /* Letter spacing (negative for large headings) */
+  --space-p: 0%;
+  --space-small: 0.2%;
+  --space-h6: -0.5%;
+  --space-h3: -1.5%;
+  --space-h1: -2%;
+
+  /* Line height */
+  --line-p: 150%;
+  --line-small: 140%;
+  --line-h6: 140%;
+  --line-h3: 120%;
+  --line-h1: 100%;
+
+  /* 8pt Grid spacing system */
+  --space-mini: 4px;
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 48px;
+  --space-7: 56px;
+  --space-8: 64px;
+
+  /* Colors — tweakcn default (overridden at runtime by ThemeContext JS) */
+  --primary-clr: #00A884;
+  --secondary-clr: #737373;
+  --accent-clr: #e5e5e5;
+  --body-bg-clr: #ffffff;
+  --body-bg-clr-dark: #0a0a0a;
+  --body-bg-clr-gray: #f5f5f5;
+  --body-bg-clr-transparent: #e5e5e5;
+  --body-bg-clr-transparent-dark: #262626;
+  --chat-bg: #EFE7DA;
+
+  /* Message bubble colors */
+  --bubble-sent: #EFFDDE;
+  --bubble-received: #FFFFFF;
+  --bubble-sent-fg: #0a0a0a;
+  --bubble-received-fg: #0a0a0a;
+
+  --txt-clr: #0a0a0a;
+  --txt-clr-light: #fafafa;
+  --txt-clr-lightgray: #737373;
+  --txt-clr-dark: #737373;
+  --txt-clr-error: #e7000b;
+  --txt-clr-success: #16a34a;
+  --txt-clr-warning: #d97706;
+  --txt-clr-info: #2563eb;
+  --txt-clr-primary: #171717;
+  --txt-clr-secondary: #737373;
+  --txt-clr-accent: #525252;
+  --txt-clr-disabled: #a1a1a1;
+  --txt-clr-placeholder: #a1a1a1;
+
+  --border-radius: 4px;
+  --border-radius-small: 2px;
+  --border-radius-large: 8px;
+  --border-radius-large2: 1rem;
+  --border-radius-large3: 2rem;
+  --border-radius-large4: 32px;
+  --border-radius-extra-large: 5rem;
+  --border-radius-circle: 50%;
+
+  --svg-fill: #0a0a0a;
+  --svg-fill-light: #fafafa;
+  --svg-fill-gray: #a1a1a1;
+  --svg-fill-seen: #3b82f6;
+  --svg-size: 24px;
+}
+
+@mixin center() {
+  display: grid;
+  place-content: center;
+}
+@mixin flex($ai, $jc, $fdr, $gap) {
+  display: flex;
+  align-items: $ai;
+  justify-content: $jc;
+  flex-direction: $fdr;
+  gap: $gap;
+}
+@mixin p() {
+  font-size: var(--font-p);
+  font-family: var(--arabic-fm-r);
+  letter-spacing: var(--space-p);
+  line-height: var(--line-p);
+}
+@mixin small() {
+  font-size: var(--font-small);
+  font-family: var(--arabic-fm-r);
+  letter-spacing: var(--space-small);
+  line-height: var(--line-small);
+}
+@mixin h6() {
+  font-size: var(--font-h6);
+  font-family: var(--arabic-fm-r);
+  letter-spacing: var(--space-h6);
+  line-height: var(--line-h6);
+}
+@mixin h5() {
+  font-size: var(--font-h5);
+  font-family: var(--arabic-fm-r);
+  letter-spacing: var(--space-h5);
+  line-height: var(--line-h5);
+}
+@mixin h4() {
+  font-size: var(--font-h4);
+  font-family: var(--arabic-fm-r);
+  letter-spacing: var(--space-h4);
+  line-height: var(--line-h4);
+}
+@mixin h3() {
+  font-size: var(--font-h3);
+  font-family: var(--arabic-fm-r);
+  letter-spacing: var(--space-h3);
+  line-height: var(--line-h3);
+}
+@mixin h2() {
+  font-size: var(--font-h2);
+  font-family: var(--arabic-fm-b);
+  letter-spacing: var(--space-h2);
+  line-height: var(--line-h2);
+}
+@mixin h1() {
+  font-size: var(--font-h1);
+  font-family: var(--arabic-fm-b);
+  letter-spacing: var(--space-h1);
+  line-height: var(--line-h1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  interpolate-size: allow-keywords !important;
+  transition-behavior: allow-discrete !important;
+  color: var(--txt-clr);
+}
+body {
+  width: 100dvw;
+  height: 100dvh;
+  overflow-x: hidden;
+  background: var(--body-bg-clr-gray);
+  user-select: none;
+}
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+  background: transparent;
+}

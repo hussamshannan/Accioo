@@ -1,0 +1,196 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hide Spline watermark */
+#logo { display: none !important; }
+
+/* Force Spline canvas to fill its container */
+#spline-container,
+#spline-container > * {
+  width: 100% !important;
+  height: 100% !important;
+}
+#spline-container canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+
+
+@layer base {
+  :root {
+    --background: #ffffff;
+    --foreground: #0a0a0a;
+    --card: #ffffff;
+    --card-foreground: #0a0a0a;
+    --popover: #ffffff;
+    --popover-foreground: #0a0a0a;
+    --primary: #171717;
+    --primary-foreground: #fafafa;
+    --secondary: #f5f5f5;
+    --secondary-foreground: #171717;
+    --muted: #f5f5f5;
+    --muted-foreground: #737373;
+    --accent: #f5f5f5;
+    --accent-foreground: #171717;
+    --destructive: #e7000b;
+    --destructive-foreground: #fafafa;
+    --border: #e5e5e5;
+    --input: #e5e5e5;
+    --ring: #a1a1a1;
+    --radius: 0.625rem;
+
+    /* Message bubble colors */
+    --bubble-sent: #171717;
+    --bubble-received: #f5f5f5;
+    --bubble-sent-fg: #fafafa;
+    --bubble-received-fg: #0a0a0a;
+
+    /* Legacy SCSS variables for ChatPage */
+    --space-1: 0.5rem;
+    --space-2: 1rem;
+    --space-3: 1.5rem;
+    --svg-size: 2.4rem;
+    --size: 2.4rem;
+    --border-radius-large3: 1.5rem;
+    --primary-clr: #171717;
+    --txt-clr-error: #e7000b;
+    --txt-clr-light: #fafafa;
+    --txt-clr-lightgray: #737373;
+    --arabic-fm-r: 'Tajawal', sans-serif;
+    --arabic-fm-b: 'Tajawal', sans-serif;
+    --font-p: 0.95rem;
+    --svg-fill: #0a0a0a;
+    --svg-fill-light: #fafafa;
+    --body-bg-clr: #ffffff;
+    --body-bg-clr-gray: #f5f5f5;
+    --body-bg-clr-transparent: #e5e5e5;
+    --txt-clr: #0a0a0a;
+    --txt-clr-dark: #737373;
+    --txt-clr-disabled: #a1a1a1;
+    --accent-clr: #e5e5e5;
+  }
+
+  .dark {
+    --background: #0a0a0a;
+    --foreground: #fafafa;
+    --card: #171717;
+    --card-foreground: #fafafa;
+    --popover: #171717;
+    --popover-foreground: #fafafa;
+    --primary: #e5e5e5;
+    --primary-foreground: #171717;
+    --secondary: #262626;
+    --secondary-foreground: #fafafa;
+    --muted: #262626;
+    --muted-foreground: #a1a1a1;
+    --accent: #262626;
+    --accent-foreground: #fafafa;
+    --destructive: #ff6467;
+    --destructive-foreground: #fafafa;
+    --border: #282828;
+    --input: #343434;
+    --ring: #737373;
+
+    /* Message bubble colors (dark) */
+    --bubble-sent: #e5e5e5;
+    --bubble-received: #262626;
+    --bubble-sent-fg: #171717;
+    --bubble-received-fg: #fafafa;
+
+    /* Legacy SCSS dark overrides */
+    --primary-clr: #e5e5e5;
+    --svg-fill: #fafafa;
+    --svg-fill-light: #fafafa;
+    --body-bg-clr: #0a0a0a;
+    --body-bg-clr-gray: #171717;
+    --body-bg-clr-transparent: #262626;
+    --txt-clr: #fafafa;
+    --txt-clr-dark: #a1a1a1;
+    --txt-clr-disabled: #737373;
+    --accent-clr: #282828;
+  }
+
+  * {
+    @apply border-border;
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Tajawal', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow: hidden;
+  }
+
+  #root {
+    height: 100%;
+  }
+}
+
+/* ── Clerk portal isolation ──────────────────────────────────────────────
+   Clerk renders its account management modal in a body-level portal.
+   In dark mode the app's CSS variables cascade into the portal, making
+   labels invisible (white text on white background).
+   Reset all app CSS vars to light-mode values inside any Clerk root so
+   Clerk's own appearance config takes full control.
+──────────────────────────────────────────────────────────────────────── */
+.cl-rootBox,
+.cl-userProfileModal,
+.cl-modalContent,
+.cl-userProfile-root {
+  --background: #ffffff;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --popover: #ffffff;
+  --popover-foreground: #111827;
+  --primary: #00A884;
+  --primary-foreground: #ffffff;
+  --secondary: #f3f4f6;
+  --secondary-foreground: #111827;
+  --muted: #f9fafb;
+  --muted-foreground: #6b7280;
+  --accent: #f3f4f6;
+  --accent-foreground: #111827;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #00A884;
+  color-scheme: light;
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.1) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar { width: 4px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 2px; }
+
+  .scrollbar-none { scrollbar-width: none; -ms-overflow-style: none; }
+  .scrollbar-none::-webkit-scrollbar { display: none; }
+
+  .online-dot {
+    @apply absolute bottom-0 right-0 w-3 h-3 rounded-full bg-green-500 border-2 border-background;
+  }
+}
+
+@keyframes shine {
+  to { background-position: 200% center; }
+}
+
+@keyframes slideInTop {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
