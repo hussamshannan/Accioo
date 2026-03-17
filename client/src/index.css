@@ -186,6 +186,26 @@
   }
 }
 
+/* Auth page — make Clerk input placeholders and badges visible on dark bg */
+.cl-formFieldInput::placeholder {
+  color: rgba(255, 255, 255, 0.5) !important;
+  opacity: 1 !important;
+}
+/* Clerk "Last used" badge / internal text on auth page */
+.cl-socialButtonsBlockButton span,
+.cl-socialButtonsBlockButton div,
+.cl-badge {
+  color: #b0b0b0 !important;
+}
+/* Clerk "Secured by" footer text */
+.cl-footerPages,
+.cl-footerPagesLink,
+.cl-footer span,
+.cl-internal-17jah1m,
+[data-localization-key*="secured"] {
+  color: #b0b0b0 !important;
+}
+
 @keyframes shine {
   to { background-position: 200% center; }
 }

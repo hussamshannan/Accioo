@@ -18,7 +18,7 @@ const clerkAppearance = {
     colorText: "#ffffff",
     colorTextSecondary: "#ffffff",
     colorTextOnPrimaryBackground: "#ffffff",
-    colorPrimary: "#00A884",
+    colorPrimary: "#E8751A",
     colorDanger: "#f87171",
     colorSuccess: "#34d399",
     colorNeutral: "#ffffff",
@@ -28,15 +28,18 @@ const clerkAppearance = {
     spacingUnit: "0.95rem",
   },
   elements: {
-    rootBox: { width: "100%" },
+    rootBox: { width: "100%", display: "flex", justifyContent: "center" },
+    cardBox: { width: "100%" },
     card: {
       background: "transparent",
       boxShadow: "none",
       border: "none",
-      padding: "0.75rem 1.25rem 1rem",
+      padding: "0.5rem 1.25rem 1rem",
+      width: "100%",
+      borderRadius: "0",
     },
     headerTitle: { color: "#ffffff", fontSize: "1.05rem", fontWeight: "600" },
-    headerSubtitle: { color: "rgba(255,255,255,0.4)", fontSize: "0.8rem" },
+    headerSubtitle: { color: "rgba(255,255,255,0.6)", fontSize: "0.8rem" },
 
     formFieldLabel: { color: "rgba(255,255,255,0.6)", fontSize: "0.8rem" },
     formFieldInput: {
@@ -47,11 +50,11 @@ const clerkAppearance = {
       fontSize: "0.875rem",
       padding: "0.65rem 0.9rem",
     },
-    formFieldInputShowPasswordButton: { color: "rgba(255,255,255,0.35)" },
+    formFieldInputShowPasswordButton: { color: "rgba(255,255,255,0.45)" },
     formFieldErrorText: { color: "#f87171", fontSize: "0.72rem" },
 
     formButtonPrimary: {
-      background: "#00A884",
+      background: "linear-gradient(135deg, #E8751A, #D4621A)",
       borderRadius: "999px",
       fontSize: "0.875rem",
       fontWeight: "600",
@@ -72,21 +75,23 @@ const clerkAppearance = {
     socialButtonsBlockButtonArrow: { color: "rgba(255,255,255,0.3)" },
 
     dividerLine: { background: "rgba(255,255,255,0.08)" },
-    dividerText: { color: "rgba(255,255,255,0.25)", fontSize: "0.72rem" },
+    dividerText: { color: "rgba(255,255,255,0.45)", fontSize: "0.72rem" },
 
     footer: {
       background: "transparent",
       borderTop: "1px solid rgba(255,255,255,0.07)",
+      justifyContent: "center",
+      borderRadius: "0",
     },
-    footerAction: { background: "transparent" },
-    footerActionText: { color: "rgba(255,255,255,0.3)", fontSize: "0.78rem" },
+    footerAction: { background: "transparent", justifyContent: "center" },
+    footerActionText: { color: "rgba(255,255,255,0.6)", fontSize: "0.78rem" },
     footerActionLink: {
       color: "#ffffff",
       fontWeight: "600",
       fontSize: "0.78rem",
     },
     footerPages: { background: "transparent" },
-    footerPagesLink: { color: "rgba(255,255,255,0.2)", fontSize: "0.7rem" },
+    footerPagesLink: { color: "rgba(255,255,255,0.4)", fontSize: "0.7rem" },
 
     badge: {
       background: "rgba(0,168,132,0.18)",
