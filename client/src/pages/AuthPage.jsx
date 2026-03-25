@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 const SCENE_DESKTOP =
-  "https://prod.spline.design/91IF-tZHO1Goh4b0/scene.splinecode";
+  "https://prod.spline.design/ehGbnRys-AaOiKFS/scene.splinecode";
 const SCENE_MOBILE =
   "https://prod.spline.design/MNy9pyp-kwnNsv4T/scene.splinecode";
 
