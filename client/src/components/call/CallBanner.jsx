@@ -29,13 +29,32 @@ function clampY(y, bannerHeight, viewportHeight) {
 export default function CallBanner() {
   const {
     remoteUser,
+    callType,
     callDuration,
     isMuted,
+    remoteCameraOn,
+    remoteVideoRef,
+    remoteStreamRef,
     endCall,
     toggleMinimize,
     bannerPosition,
     setBannerPosition,
   } = useCall();
+
+  const isVideoCall = callType === "video";
+
+  // Same pattern as ActiveCallScreen: reassign the shared remoteVideoRef so
+  // pc.ontrack in CallContext can attach the stream to whichever <video>
+  // is currently mounted (banner or full screen).
+  const remoteVideoCallbackRef = useCallback(
+    (el) => {
+      remoteVideoRef.current = el;
+      if (el && remoteStreamRef.current) {
+        el.srcObject = remoteStreamRef.current;
+      }
+    },
+    [remoteVideoRef, remoteStreamRef]
+  );
 
   const bannerRef = useRef(null);
   const dragRef = useRef({
@@ -163,7 +182,27 @@ export default function CallBanner() {
       onPointerUp={finishDrag}
       onPointerCancel={finishDrag}
     >
-      <UserAvatar user={remoteUser} size="sm" showOnline={false} />
+      {isVideoCall ? (
+        <div className="w-24 h-28 rounded-2xl overflow-hidden bg-black/40 flex items-center justify-center relative">
+          <video
+            ref={remoteVideoCallbackRef}
+            autoPlay
+            playsInline
+            muted
+            disablePictureInPicture
+            style={{
+              pointerEvents: "none",
+              display: remoteCameraOn ? "block" : "none",
+            }}
+            className="w-full h-full object-cover"
+          />
+          {!remoteCameraOn && (
+            <UserAvatar user={remoteUser} size="lg" showOnline={false} />
+          )}
+        </div>
+      ) : (
+        <UserAvatar user={remoteUser} size="sm" showOnline={false} />
+      )}
       <span className="text-white text-[10px] font-mono tabular-nums leading-none">
         {formatDuration(callDuration)}
       </span>
