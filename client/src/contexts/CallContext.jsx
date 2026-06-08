@@ -20,6 +20,8 @@ const initialState = {
   callDuration: 0,
   remoteMuted: false,
   remoteCameraOn: true,
+  cameraFacing: "user", // "user" (front) | "environment" (back)
+  bannerPosition: { side: "right", topPx: null }, // null topPx → use default Y
   error: null,
 };
 
@@ -66,6 +68,10 @@ function callReducer(state, action) {
         return { ...state, remoteMuted: !action.payload.enabled };
       }
       return { ...state, remoteCameraOn: action.payload.enabled };
+    case "SET_CAMERA_FACING":
+      return { ...state, cameraFacing: action.payload };
+    case "SET_BANNER_POSITION":
+      return { ...state, bannerPosition: action.payload };
     case "SET_ERROR":
       return { ...state, error: action.payload };
     case "RESET":
@@ -86,6 +92,8 @@ export function CallProvider({ children }) {
   const iceCandidateBuffer = useRef([]);
   const timerRef = useRef(null);
   const stateRef = useRef(state);
+  const facingModeRef = useRef("user");
+  const isSwitchingCameraRef = useRef(false);
 
   // Keep stateRef in sync
   useEffect(() => {
@@ -119,6 +127,10 @@ export function CallProvider({ children }) {
 
     // Clear ICE buffer
     iceCandidateBuffer.current = [];
+
+    // Reset camera facing for the next call
+    facingModeRef.current = "user";
+    isSwitchingCameraRef.current = false;
 
     // Clear streams and video elements
     remoteStreamRef.current = null;
@@ -218,7 +230,10 @@ export function CallProvider({ children }) {
   const captureMedia = useCallback(async (callType) => {
     const constraints = {
       audio: true,
-      video: callType === "video",
+      video:
+        callType === "video"
+          ? { facingMode: { ideal: facingModeRef.current } }
+          : false,
     };
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
     localStreamRef.current = stream;
@@ -228,6 +243,73 @@ export function CallProvider({ children }) {
     }
 
     return stream;
+  }, []);
+
+  // ─── Switch front/back camera (mobile) ────────────────────────────────
+  // Swaps the local video track via RTCRtpSender.replaceTrack so renegotiation
+  // is not required. No-op on devices with only one camera.
+  const switchCamera = useCallback(async () => {
+    const { callType, callState, isCameraOn } = stateRef.current;
+    if (callType !== "video") return;
+    if (callState !== "active" && callState !== "connecting") return;
+    if (isSwitchingCameraRef.current) return;
+    isSwitchingCameraRef.current = true;
+
+    const nextFacing = facingModeRef.current === "user" ? "environment" : "user";
+    let newStream = null;
+
+    try {
+      newStream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: { facingMode: { exact: nextFacing } },
+      });
+    } catch {
+      // `exact` constraint fails on devices with only one camera — bail quietly.
+      isSwitchingCameraRef.current = false;
+      return;
+    }
+
+    try {
+      const newVideoTrack = newStream.getVideoTracks()[0];
+      if (!newVideoTrack) {
+        newStream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+
+      // Preserve mute state (camera-off keeps the track but disables it)
+      newVideoTrack.enabled = isCameraOn;
+
+      // Swap on the peer connection (no renegotiation needed)
+      const pc = pcRef.current;
+      if (pc) {
+        const sender = pc.getSenders().find((s) => s.track?.kind === "video");
+        if (sender) await sender.replaceTrack(newVideoTrack);
+      }
+
+      // Swap on local stream + stop old track
+      const localStream = localStreamRef.current;
+      if (localStream) {
+        const oldVideoTrack = localStream.getVideoTracks()[0];
+        if (oldVideoTrack) {
+          localStream.removeTrack(oldVideoTrack);
+          oldVideoTrack.stop();
+        }
+        localStream.addTrack(newVideoTrack);
+
+        // Re-attach to preview so the new frames render
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = localStream;
+        }
+      }
+
+      facingModeRef.current = nextFacing;
+      dispatch({ type: "SET_CAMERA_FACING", payload: nextFacing });
+    } catch (err) {
+      console.warn("[CALL] switchCamera failed:", err);
+      newStream.getTracks().forEach((t) => t.stop());
+    } finally {
+      isSwitchingCameraRef.current = false;
+    }
   }, []);
 
   // ─── Flush ICE candidates ─────────────────────────────────────────────
@@ -372,6 +454,11 @@ export function CallProvider({ children }) {
   // ─── Toggle Minimize ──────────────────────────────────────────────────
   const toggleMinimize = useCallback(() => {
     dispatch({ type: "TOGGLE_MINIMIZE" });
+  }, []);
+
+  // ─── Persist minimized-banner position ────────────────────────────────
+  const setBannerPosition = useCallback((pos) => {
+    dispatch({ type: "SET_BANNER_POSITION", payload: pos });
   }, []);
 
   // ─── Socket event listeners ───────────────────────────────────────────
@@ -533,6 +620,8 @@ export function CallProvider({ children }) {
         callDuration: state.callDuration,
         remoteMuted: state.remoteMuted,
         remoteCameraOn: state.remoteCameraOn,
+        cameraFacing: state.cameraFacing,
+        bannerPosition: state.bannerPosition,
         error: state.error,
         // Refs
         localVideoRef,
@@ -549,6 +638,8 @@ export function CallProvider({ children }) {
         toggleCamera,
         toggleSpeaker,
         toggleMinimize,
+        switchCamera,
+        setBannerPosition,
       }}
     >
       {children}

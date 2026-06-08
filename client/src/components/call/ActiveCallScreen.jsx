@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import { useCall } from "@/contexts/CallContext";
 import UserAvatar from "@/components/ui/UserAvatar";
 import VoiceVisualizer from "@/components/VoiceVisualizer";
@@ -12,6 +12,7 @@ import {
   Volume2,
   VolumeOff,
   ChevronDown,
+  RefreshCw,
 } from "lucide-react";
 
 function formatDuration(seconds) {
@@ -34,6 +35,7 @@ export default function ActiveCallScreen() {
     isSpeaker,
     remoteMuted,
     remoteCameraOn,
+    cameraFacing,
     localVideoRef,
     remoteVideoRef,
     localStreamRef,
@@ -43,9 +45,34 @@ export default function ActiveCallScreen() {
     toggleCamera,
     toggleSpeaker,
     toggleMinimize,
+    switchCamera,
   } = useCall();
 
   const isVideo = callType === "video";
+
+  // Double-tap the video area to switch front/back camera
+  const lastTapRef = useRef(0);
+  const [showFlipHint, setShowFlipHint] = useState(false);
+  const hintTimeoutRef = useRef(null);
+
+  const handleVideoTap = useCallback(() => {
+    const now = Date.now();
+    if (lastTapRef.current && now - lastTapRef.current < 350) {
+      lastTapRef.current = 0;
+      switchCamera();
+      setShowFlipHint(true);
+      if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
+      hintTimeoutRef.current = setTimeout(() => setShowFlipHint(false), 900);
+    } else {
+      lastTapRef.current = now;
+    }
+  }, [switchCamera]);
+
+  useEffect(() => {
+    return () => {
+      if (hintTimeoutRef.current) clearTimeout(hintTimeoutRef.current);
+    };
+  }, []);
 
   // Callback refs — attach stream the instant the video element mounts
   const localVideoCallbackRef = useCallback(
@@ -87,6 +114,21 @@ export default function ActiveCallScreen() {
             </div>
           )}
 
+          {/* Double-tap surface — sits above the remote video but below PiP (z-10) and controls (z-20) */}
+          <div
+            className="absolute inset-0 z-[5]"
+            onClick={handleVideoTap}
+            aria-hidden="true"
+          />
+
+          {/* Flip-camera toast */}
+          {showFlipHint && (
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none flex items-center gap-2 bg-black/60 rounded-full px-4 py-2">
+              <RefreshCw className="w-4 h-4 text-white" />
+              <span className="text-white text-sm">Switching camera…</span>
+            </div>
+          )}
+
           {/* Local video PiP — always mounted so srcObject persists across toggles */}
           <div className="absolute bottom-28 right-4 w-32 h-44 rounded-2xl overflow-hidden border-2 border-white/20 bg-black z-10">
             <video
@@ -95,7 +137,10 @@ export default function ActiveCallScreen() {
               playsInline
               muted
               className="w-full h-full object-cover"
-              style={{ transform: "scaleX(-1)", display: isCameraOn ? "block" : "none" }}
+              style={{
+                transform: cameraFacing === "environment" ? "none" : "scaleX(-1)",
+                display: isCameraOn ? "block" : "none",
+              }}
             />
             {!isCameraOn && (
               <div className="w-full h-full flex items-center justify-center bg-gray-900">
