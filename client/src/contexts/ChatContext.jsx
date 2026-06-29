@@ -71,6 +71,7 @@ export function ChatProvider({ children }) {
           // sender may be a raw ObjectId (not nested-populated) — handle both cases
           isMe: myId ? (m.replyTo.sender?._id?.toString() ?? m.replyTo.sender?.toString()) === myId : false,
         } : null,
+        storyReply: m.storyReply || null,
       });
 
       setMessages(dbMessages.map(mapMsg)
@@ -131,6 +132,7 @@ export function ChatProvider({ children }) {
           audioUrl: m.replyTo.audioUrl || null,
           isMe: myId ? (m.replyTo.sender?._id?.toString() ?? m.replyTo.sender?.toString()) === myId : false,
         } : null,
+        storyReply: m.storyReply || null,
       });
 
       setMessages((prev) => [...older.map(mapMsg), ...prev]);

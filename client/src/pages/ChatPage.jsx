@@ -1177,6 +1177,41 @@ export default function ChatPage() {
                         </div>
                       )}
 
+                      {/* Story-reply quote */}
+                      {msg.storyReply && (() => {
+                        const sr = msg.storyReply;
+                        const authorId =
+                          sr.storyAuthor?._id?.toString?.() ?? sr.storyAuthor?.toString?.();
+                        const iAmAuthor = authorId && authorId === dbUser?._id?.toString();
+                        const otherName =
+                          otherUser?.displayName || otherUser?.username || "their";
+                        const label = iAmAuthor
+                          ? "Replied to your story"
+                          : `Replied to ${otherName}'s story`;
+                        return (
+                          <div className="story-reply-snippet">
+                            <div
+                              className="story-reply-thumb"
+                              style={{ background: sr.backgroundColor || "#262626" }}
+                            >
+                              {sr.mediaType === "image" ? (
+                                <img src={sr.mediaUrl} alt="" />
+                              ) : sr.mediaType === "video" ? (
+                                <video src={sr.mediaUrl} muted playsInline />
+                              ) : (
+                                <span className="story-reply-thumb-text">
+                                  {(sr.storyText || "").slice(0, 24)}
+                                </span>
+                              )}
+                            </div>
+                            <div className="story-reply-meta">
+                              <span className="story-reply-label">{label}</span>
+                              <span className="story-reply-sub">Story</span>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
                       {/* Shared post card */}
                       {msg.sharedPost ? (
                         <div

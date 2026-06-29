@@ -65,6 +65,19 @@ const messageSchema = new mongoose.Schema(
       ref: "ProfilePost",
       default: null,
     },
+    // Denormalized snapshot of the story this message replies to. Stored inline
+    // (not just a ref) so the quote survives the 24h story expiry/cleanup.
+    storyReply: {
+      type: {
+        storyId: { type: mongoose.Schema.Types.ObjectId, ref: "Story" },
+        storyAuthor: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        mediaUrl: { type: String, default: "" },
+        mediaType: { type: String, default: "" }, // "image" | "video" | "text"
+        storyText: { type: String, default: "" },
+        backgroundColor: { type: String, default: "" },
+      },
+      default: null,
+    },
     edited: {
       type: Boolean,
       default: false,

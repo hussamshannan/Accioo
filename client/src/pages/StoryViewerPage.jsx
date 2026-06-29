@@ -5,10 +5,12 @@ import { storyEntrance, slideFromTop, slideFromBottom } from "@/utils/animations
 import { useAuth } from "../contexts/AuthContext";
 import { getStoryFeed, markStoryViewed, deleteStory } from "../services/storyService";
 import { createConversation, sendMessageToConversation } from "../services/chatService";
-import { X, Trash2, Send, Eye, Check } from "lucide-react";
+import { X, Trash2, Send, Eye } from "lucide-react";
 import { formatTime } from "../utils/formatTime";
+import { toast } from "@/hooks/use-toast";
 
 const STORY_DURATION = 5000;
+const QUICK_REACTIONS = ["❤️", "😂", "😮", "😢", "👏", "🔥"];
 
 /* helper: stop all touch/mouse events from bubbling to the pause overlay */
 const block = (e) => e.stopPropagation();
@@ -32,7 +34,6 @@ export default function StoryViewerPage() {
   const [replyText, setReplyText] = useState("");
   const [showReply, setShowReply] = useState(false);
   const [isSending, setIsSending] = useState(false);
-  const [replySent, setReplySent] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
 
   const progressRef = useRef(null);
@@ -175,24 +176,52 @@ export default function StoryViewerPage() {
   const closeReply = () => {
     setShowReply(false);
     setReplyText("");
-    setReplySent(false);
   };
 
-  const handleSendReply = async () => {
-    if (!replyText.trim() || isSending || !currentStory?.author?._id) return;
+  // Snapshot of the story being replied to — denormalized so the chat quote
+  // survives the 24h story expiry.
+  const buildStoryReply = (story) => ({
+    storyId: story._id,
+    storyAuthor: story.author?._id,
+    mediaUrl: story.mediaUrl || "",
+    mediaType: story.type || "",
+    storyText: story.text || "",
+    backgroundColor: story.backgroundColor || "",
+  });
+
+  const sendReply = async (body) => {
+    const story = currentStory;
+    if (!body.trim() || !story?.author?._id) return;
     setIsSending(true);
     try {
       const convRes = await createConversation({
         type: "direct",
-        participantIds: [currentStory.author._id],
+        participantIds: [story.author._id],
       });
-      await sendMessageToConversation(convRes.data.conversation._id, replyText.trim());
-      setReplySent(true);
-      setReplyText("");
-      setTimeout(() => closeReply(), 1500);
-    } catch { /* silent */ } finally {
+      await sendMessageToConversation(
+        convRes.data.conversation._id,
+        body.trim(),
+        buildStoryReply(story),
+      );
+      toast({ description: `Reply sent to ${story.author?.displayName || story.author?.username || "user"}` });
+      return true;
+    } catch {
+      toast({ variant: "destructive", description: "Couldn't send reply. Try again." });
+      return false;
+    } finally {
       setIsSending(false);
     }
+  };
+
+  const handleSendReply = async () => {
+    if (isSending) return;
+    const ok = await sendReply(replyText);
+    if (ok) closeReply();
+  };
+
+  const handleQuickReaction = (emoji) => {
+    if (isSending) return;
+    sendReply(emoji);
   };
 
   /* ── Loading / empty states ── */
@@ -359,50 +388,67 @@ export default function StoryViewerPage() {
 
         {/* Reply (others' stories) */}
         {!isOwn && (
-          showReply ? (
-            <div className="flex items-center gap-2 px-3 pb-8 pt-2" {...blockProps}>
-              <input
-                ref={replyInputRef}
-                value={replyText}
-                onChange={(e) => setReplyText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Escape") closeReply();
-                  if (e.key === "Enter") handleSendReply();
-                }}
-                placeholder={replySent ? "Sent!" : `Reply to ${authorName}…`}
-                disabled={isSending || replySent}
-                className="flex-1 bg-white/10 border border-white/20 text-white placeholder:text-white/50 text-sm rounded-full px-4 py-2.5 outline-none backdrop-blur-sm disabled:opacity-60"
-              />
-              {!replySent && (
-                <button onClick={closeReply} className="w-9 h-9 flex items-center justify-center text-white/60 rounded-full">
+          <div className="flex flex-col gap-3 px-3 pb-8 pt-1" {...blockProps}>
+            {/* Quick emoji reactions — one tap sends instantly */}
+            <div className="flex items-center justify-center gap-3">
+              {QUICK_REACTIONS.map((emoji) => (
+                <button
+                  key={emoji}
+                  onClick={(e) => { e.stopPropagation(); handleQuickReaction(emoji); }}
+                  disabled={isSending}
+                  aria-label={`React ${emoji}`}
+                  className="text-[26px] leading-none transition-transform active:scale-125 hover:scale-110 disabled:opacity-40"
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+
+            {/* Text reply */}
+            {showReply ? (
+              <div className="flex items-center gap-2">
+                <input
+                  ref={replyInputRef}
+                  value={replyText}
+                  onChange={(e) => setReplyText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") closeReply();
+                    if (e.key === "Enter") handleSendReply();
+                  }}
+                  placeholder={`Reply to ${authorName}…`}
+                  disabled={isSending}
+                  className="flex-1 bg-white/10 border border-white/25 text-white placeholder:text-white/50 text-sm rounded-full px-4 py-2.5 outline-none backdrop-blur-sm disabled:opacity-60"
+                />
+                <button
+                  onClick={closeReply}
+                  aria-label="Close reply"
+                  className="w-9 h-9 flex items-center justify-center text-white/60 rounded-full shrink-0"
+                >
                   <X className="w-4 h-4" />
                 </button>
-              )}
+                <button
+                  disabled={!replyText.trim() || isSending}
+                  onClick={handleSendReply}
+                  aria-label="Send reply"
+                  className="w-9 h-9 flex items-center justify-center rounded-full bg-white text-black shrink-0 disabled:opacity-40"
+                >
+                  {isSending ? (
+                    <div className="w-4 h-4 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
+            ) : (
               <button
-                disabled={!replyText.trim() || isSending || replySent}
-                onClick={handleSendReply}
-                className="w-9 h-9 flex items-center justify-center rounded-full disabled:opacity-40"
-                style={{ background: replySent ? "#16a34a" : "var(--primary)" }}
+                onClick={(e) => { e.stopPropagation(); openReply(); }}
+                className="flex items-center justify-center gap-2 py-2.5 rounded-full border border-white/25 text-white/75 text-sm active:bg-white/10"
               >
-                {replySent ? (
-                  <Check className="w-4 h-4 text-white" />
-                ) : isSending ? (
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <Send className="w-4 h-4 text-white" />
-                )}
+                <Send className="w-4 h-4" />
+                Reply to {authorName}
               </button>
-            </div>
-          ) : (
-            <button
-              {...blockProps}
-              onClick={(e) => { e.stopPropagation(); openReply(); }}
-              className="flex items-center justify-center gap-2 mx-4 mb-8 mt-1 py-2.5 rounded-full border border-white/25 text-white/70 text-sm active:bg-white/10"
-            >
-              <Send className="w-4 h-4" />
-              Reply to {authorName}
-            </button>
-          )
+            )}
+          </div>
         )}
 
         {isOwn && <div className="pb-8" />}

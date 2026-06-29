@@ -26,8 +26,8 @@ export const markMessageRead = (messageId) =>
 export const sharePostToConversation = (conversationId, imageUrl, text = "", postId = null) =>
   api.post(`/api/conversations/${conversationId}/share-post`, { imageUrl, text, postId });
 
-export const sendMessageToConversation = (conversationId, text) =>
-  api.post(`/api/conversations/${conversationId}/message`, { text });
+export const sendMessageToConversation = (conversationId, text, storyReply = null) =>
+  api.post(`/api/conversations/${conversationId}/message`, { text, ...(storyReply ? { storyReply } : {}) });
 
 export const deleteConversation = (conversationId, forEveryone = false) =>
   api.delete(`/api/conversations/${conversationId}`, { data: { forEveryone } });
