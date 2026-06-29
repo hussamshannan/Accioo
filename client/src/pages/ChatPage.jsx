@@ -9,6 +9,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { getConversation } from "../services/chatService";
 import VoiceVisualizer from "../components/VoiceVisualizer";
 import VoiceMessage from "../components/VoiceMessage";
+import VoiceRecorder from "../components/VoiceRecorder";
 import { allImages } from "../hooks/imageImporter";
 import gsap from "gsap";
 import { slideFromTop } from "@/utils/animations";
@@ -81,7 +82,7 @@ export default function ChatPage() {
     videoRef,
     bgimageRef,
   } = useTheme();
-  const { socket, isConnected: socketConnected } = useSocket();
+  const { socket } = useSocket();
   const {
     messages,
     setMessages,
@@ -431,11 +432,11 @@ export default function ChatPage() {
       }
       gsap
         .timeline({ defaults: { duration: 0.2 } })
-        .to(plusButtonRef.current, { display: "grid" })
+        .to(plusButtonRef.current, { display: "flex" })
         .to(plusButtonRef.current, {
           opacity: 1,
           pointerEvents: "all",
-          width: "var(--svg-size)",
+          width: "auto",
           marginInline: "var(--space-1)",
         });
     }
@@ -924,6 +925,9 @@ export default function ChatPage() {
    * VOICE RECORDING
    * ─────────────────────────────────────────────────────────────────────── */
   const startRecording = async () => {
+    // Ignore a second start while a recorder is already live (toggle-model guard)
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive")
+      return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
@@ -1593,19 +1597,6 @@ export default function ChatPage() {
           </div>
         )}
 
-        {/* Recording indicator */}
-        {isRecording && (
-          <div className="recording-indicator">
-            <span className="recording-dot" />
-            <span className="recording-time">
-              {formatAudioDuration(recordingDuration)}
-            </span>
-            <span className="recording-label">Recording…</span>
-            <button className="recording-cancel" onClick={cancelRecording}>
-              Cancel
-            </button>
-          </div>
-        )}
 
         <form onSubmit={handleSendMessage} className="message-input-form">
           {/* Cancel edit button */}
@@ -1624,7 +1615,7 @@ export default function ChatPage() {
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
             title="Attach image"
-            style={{ position: "relative", overflow: "hidden", flexShrink: 0 }}
+            style={{ position: "relative", overflow: "hidden", flexShrink: 0, display: isRecording ? "none" : undefined }}
           >
             {isUploading ? (
               <div style={{ position: "relative", display: "grid", placeContent: "center" }}>
@@ -1685,46 +1676,33 @@ export default function ChatPage() {
                     : "Waiting for another user to join…"
             }
             className={isBright ? "bright-placeholder" : "dark-placeholder"}
+            style={{ display: isRecording ? "none" : undefined }}
           />
 
-          {/* Voice button (right, shown when input is empty) */}
-          <button
-            type="button"
+          {/* Voice recorder (tap to start, tap send/cancel to finish) */}
+          <VoiceRecorder
             ref={plusButtonRef}
-            className="plusButton"
-            title="Hold to record voice message"
-            disabled={!socketConnected}
-            onMouseDown={startRecording}
-            onMouseUp={stopRecording}
-            onMouseLeave={() => { if (isRecording) stopRecording(); }}
-            onTouchStart={startRecording}
-            onTouchEnd={stopRecording}
-            style={{ touchAction: "none" }}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill={isRecording ? "var(--txt-clr-error)" : iconFill}
-              width="var(--svg-size)"
-              height="var(--svg-size)"
-            >
-              <rect x="9" y="2" width="6" height="13" rx="3" />
-              <path d="M5 10a7 7 0 0014 0" fill="none" stroke={isRecording ? "var(--txt-clr-error)" : iconFill} strokeWidth="1.5" strokeLinecap="round" />
-              <line x1="12" y1="19" x2="12" y2="22" stroke={isRecording ? "var(--txt-clr-error)" : iconFill} strokeWidth="1.5" strokeLinecap="round" />
-              <line x1="9" y1="22" x2="15" y2="22" stroke={isRecording ? "var(--txt-clr-error)" : iconFill} strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          </button>
+            isRecording={isRecording}
+            recordingDuration={recordingDuration}
+            onStart={startRecording}
+            onStop={stopRecording}
+            onCancel={cancelRecording}
+            formatDuration={formatAudioDuration}
+          />
 
           {/* Send button (right, shown when input has content) */}
-          <button
-            type="submit"
-            ref={sendButtonRef}
-            className="sendButton"
-            disabled={
-              editingMessageId ? !editMessageText.trim() : !inputMessage.trim()
-            }
-          >
-            {React.cloneElement(icons.send, { fill: iconFill })}
-          </button>
+          {!isRecording && (
+            <button
+              type="submit"
+              ref={sendButtonRef}
+              className="sendButton"
+              disabled={
+                editingMessageId ? !editMessageText.trim() : !inputMessage.trim()
+              }
+            >
+              {React.cloneElement(icons.send, { fill: iconFill })}
+            </button>
+          )}
         </form>
       </div>
 
