@@ -6,6 +6,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { ChatProvider } from "./contexts/ChatContext";
 import { CallProvider } from "./contexts/CallContext";
 import CallOverlay from "./components/call/CallOverlay";
+import { Toaster } from "./components/ui/toaster";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
 import DesktopLayout from "./components/layout/DesktopLayout";
 import useMediaQuery from "./hooks/useMediaQuery";
@@ -75,6 +76,7 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       <CallOverlay />
+      <Toaster />
     </AppProviders>
   );
 }

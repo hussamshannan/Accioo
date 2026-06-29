@@ -52,8 +52,8 @@
   --space-7: 56px;
   --space-8: 64px;
 
-  /* Colors — tweakcn default (overridden at runtime by ThemeContext JS) */
-  --primary-clr: #00A884;
+  /* Colors — light-theme fallback (overridden at runtime by ThemeContext JS) */
+  --primary-clr: #171717;
   --secondary-clr: #737373;
   --accent-clr: #e5e5e5;
   --body-bg-clr: #ffffff;

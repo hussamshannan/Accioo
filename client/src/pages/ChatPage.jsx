@@ -9,6 +9,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { getConversation } from "../services/chatService";
 import VoiceVisualizer from "../components/VoiceVisualizer";
 import VoiceMessage from "../components/VoiceMessage";
+import VoiceRecorder from "../components/VoiceRecorder";
 import { allImages } from "../hooks/imageImporter";
 import gsap from "gsap";
 import { slideFromTop } from "@/utils/animations";
@@ -26,6 +27,9 @@ import ImageLightbox from "../components/ui/ImageLightbox";
 import ForwardDialog from "../components/ui/ForwardDialog";
 import LinkPreview from "../components/ui/LinkPreview";
 import { compressImage, compressVideo, MAX_SIZE } from "../utils/mediaCompression";
+import { Button } from "@/components/ui/button";
+import { Paperclip, Send, X, Loader2 } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
 
 const MAX_FILE_SIZE = MAX_SIZE; // from mediaCompression (15MB after compression)
 const URL_RE = /https?:\/\/[^\s]+/;
@@ -81,7 +85,7 @@ export default function ChatPage() {
     videoRef,
     bgimageRef,
   } = useTheme();
-  const { socket, isConnected: socketConnected } = useSocket();
+  const { socket } = useSocket();
   const {
     messages,
     setMessages,
@@ -123,7 +127,6 @@ export default function ChatPage() {
   });
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const [uploadError, setUploadError] = useState(null);
 
   /* ── lightbox ── */
   const [lightboxSrc, setLightboxSrc] = useState(null);
@@ -179,18 +182,14 @@ export default function ChatPage() {
   const containerRef = useRef(null);
   const navRef = useRef(null);
   const messagesEndRef = useRef(null);
-  const sendButtonRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const chatContainerRef = useRef(null);
   const gelaryRef = useRef(null);
   const longPressTimeoutRef = useRef(null);
-  const editButtonRef = useRef(null);
-  const plusButtonRef = useRef(null);
   const inputRef = useRef(null);
   const lastMessageIdRef = useRef(null);
   const emojiPickerRef = useRef(null);
   const fileInputRef = useRef(null);
-  const prevContentState = useRef(false);
 
   /* ── nav entrance ── */
   useLayoutEffect(() => {
@@ -261,13 +260,6 @@ export default function ChatPage() {
     }
     prevMsgCountRef.current = messages.length;
   }, [messages.length]);
-
-  /* ── Auto-dismiss upload error after 6 s ── */
-  useEffect(() => {
-    if (!uploadError) return;
-    const t = setTimeout(() => setUploadError(null), 6000);
-    return () => clearTimeout(t);
-  }, [uploadError]);
 
   /* ─────────────────────────────────────────────────────────────────────────
    * Socket room events
@@ -381,79 +373,8 @@ export default function ChatPage() {
     };
   }, []);
 
-  /* ─────────────────────────────────────────────────────────────────────────
-   * Send/Plus button GSAP toggle
-   * ─────────────────────────────────────────────────────────────────────── */
-  useEffect(() => {
-    if (!sendButtonRef.current) return;
-    const hasContent =
-      (editMessageText && editMessageText.trim().length > 0) ||
-      (inputMessage && inputMessage.trim().length > 0);
-    if (hasContent === prevContentState.current) return;
-    prevContentState.current = hasContent;
-    const tl = gsap.timeline({ defaults: { duration: 0.2 } });
-    if (hasContent) {
-      tl.to(sendButtonRef.current, { display: "grid" }).to(
-        sendButtonRef.current,
-        {
-          opacity: 1,
-          pointerEvents: "all",
-          width: "var(--svg-size)",
-          marginInline: "var(--space-1)",
-        },
-      );
-      gsap
-        .timeline({ defaults: { duration: 0.2 } })
-        .to(plusButtonRef.current, {
-          opacity: 0,
-          marginInline: "0px",
-          width: "0",
-          pointerEvents: "none",
-        })
-        .to(plusButtonRef.current, { display: "none" });
-    } else {
-      tl.to(sendButtonRef.current, {
-        opacity: 0,
-        marginInline: "0px",
-        width: "0",
-        pointerEvents: "none",
-      }).to(sendButtonRef.current, { display: "none" });
-      if (editingMessageId == null && editButtonRef.current) {
-        gsap
-          .timeline({ defaults: { duration: 0.2 } })
-          .to(editButtonRef.current, {
-            opacity: 0,
-            marginInline: "0px",
-            width: "0",
-            pointerEvents: "none",
-          })
-          .to(editButtonRef.current, { display: "none" });
-      }
-      gsap
-        .timeline({ defaults: { duration: 0.2 } })
-        .to(plusButtonRef.current, { display: "grid" })
-        .to(plusButtonRef.current, {
-          opacity: 1,
-          pointerEvents: "all",
-          width: "var(--svg-size)",
-          marginInline: "var(--space-1)",
-        });
-    }
-  }, [editMessageText, inputMessage]);
-
-  useEffect(() => {
-    if (editingMessageId == null && editButtonRef.current) {
-      gsap
-        .timeline({ defaults: { duration: 0.2 } })
-        .to(editButtonRef.current, {
-          opacity: 0,
-          marginInline: "0px",
-          width: "0",
-          pointerEvents: "none",
-        })
-        .to(editButtonRef.current, { display: "none" });
-    }
-  }, [editingMessageId]);
+  /* Composer send/mic swap is now driven by conditional rendering in JSX
+   * (see the message-input-form below) — no imperative GSAP toggle needed. */
 
   /* ─────────────────────────────────────────────────────────────────────────
    * Click-outside closes emoji picker
@@ -746,17 +667,6 @@ export default function ChatPage() {
     const { id, text } = contextMenu;
     setEditingMessageId(id);
     setEditMessageText(text || "");
-    if (editButtonRef.current) {
-      gsap
-        .timeline({ defaults: { duration: 0.2 } })
-        .to(editButtonRef.current, { display: "grid" })
-        .to(editButtonRef.current, {
-          opacity: 1,
-          pointerEvents: "all",
-          width: "var(--svg-size)",
-          marginInline: "var(--space-1)",
-        });
-    }
     hideContextMenu();
     setTimeout(() => inputRef.current?.focus(), 300);
   };
@@ -878,7 +788,6 @@ export default function ChatPage() {
 
     setIsUploading(true);
     setUploadProgress(0);
-    setUploadError(null);
     try {
       let compressed;
       if (file.type.startsWith("video/")) {
@@ -888,13 +797,13 @@ export default function ChatPage() {
       }
 
       if (compressed.size > MAX_FILE_SIZE) {
-        setUploadError(`File is too large (${(compressed.size / (1024 * 1024)).toFixed(1)}MB). Maximum is ${(MAX_FILE_SIZE / (1024 * 1024)).toFixed(0)}MB.`);
+        toast({ variant: "destructive", description: `File is too large (${(compressed.size / (1024 * 1024)).toFixed(1)}MB). Maximum is ${(MAX_FILE_SIZE / (1024 * 1024)).toFixed(0)}MB.` });
         return;
       }
 
       await sendImage(compressed, roomId, (p) => setUploadProgress(p));
     } catch (err) {
-      setUploadError(err.message || "Failed to send media. Please try again.");
+      toast({ variant: "destructive", description: err.message || "Failed to send media. Please try again." });
     } finally {
       setIsUploading(false);
       setUploadProgress(0);
@@ -924,6 +833,9 @@ export default function ChatPage() {
    * VOICE RECORDING
    * ─────────────────────────────────────────────────────────────────────── */
   const startRecording = async () => {
+    // Ignore a second start while a recorder is already live (toggle-model guard)
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive")
+      return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
@@ -959,7 +871,7 @@ export default function ChatPage() {
       }, 1000);
     } catch (err) {
       console.error("startRecording error:", err);
-      setUploadError("Microphone access denied. Please check permissions.");
+      toast({ variant: "destructive", description: "Microphone access denied. Please check permissions." });
     }
   };
 
@@ -982,12 +894,12 @@ export default function ChatPage() {
 
       if (duration >= 1) {
         if (blob.size > MAX_FILE_SIZE) {
-          setUploadError(`Voice message is too large (${(blob.size / (1024 * 1024)).toFixed(1)}MB). Try a shorter recording.`);
+          toast({ variant: "destructive", description: `Voice message is too large (${(blob.size / (1024 * 1024)).toFixed(1)}MB). Try a shorter recording.` });
         } else {
           try {
             await sendAudio(blob, duration, roomId);
           } catch (err) {
-            setUploadError(err.message || "Failed to send voice message. Please try again.");
+            toast({ variant: "destructive", description: err.message || "Failed to send voice message. Please try again." });
           }
         }
       }
@@ -1069,8 +981,8 @@ export default function ChatPage() {
             <div className="nav-dropdown" ref={dropdownRef}>
               {/* Profile */}
               <button className="dropdown-item" onClick={() => closeDropdown(() => otherUser && navigate(`/profile/${otherUser._id}`))}>
-                <div className="dropdown-icon" style={{ background: "#00A884" }}>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <div className="dropdown-icon" style={{ background: "var(--primary)" }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="var(--primary-foreground)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
                   </svg>
@@ -1593,139 +1505,123 @@ export default function ChatPage() {
           </div>
         )}
 
-        {/* Recording indicator */}
-        {isRecording && (
-          <div className="recording-indicator">
-            <span className="recording-dot" />
-            <span className="recording-time">
-              {formatAudioDuration(recordingDuration)}
-            </span>
-            <span className="recording-label">Recording…</span>
-            <button className="recording-cancel" onClick={cancelRecording}>
-              Cancel
-            </button>
-          </div>
-        )}
 
-        <form onSubmit={handleSendMessage} className="message-input-form">
-          {/* Cancel edit button */}
-          <button
-            type="button"
-            onClick={cancelEdit}
-            ref={editButtonRef}
-            className="editButton"
-          >
-            {React.cloneElement(icons.cancel, { fill: iconFill })}
-          </button>
+        {(() => {
+          const editing = editingMessageId != null;
+          const composerText = editing ? editMessageText : inputMessage;
+          const hasContent = composerText.trim().length > 0;
+          return (
+            <form onSubmit={handleSendMessage} className="flex w-full items-end gap-1">
+              {/* Left control — cancel edit, or attach */}
+              {!isRecording &&
+                (editing ? (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={cancelEdit}
+                    aria-label="Cancel editing"
+                    className="shrink-0 rounded-full text-muted-foreground"
+                  >
+                    <X className="h-5 w-5" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    aria-label="Attach image"
+                    className="shrink-0 rounded-full text-muted-foreground"
+                  >
+                    {isUploading ? (
+                      uploadProgress > 0 ? (
+                        <span
+                          className="relative inline-grid h-5 w-5 place-content-center rounded-full"
+                          style={{
+                            background: `conic-gradient(var(--primary) ${Math.round(uploadProgress * 3.6)}deg, var(--border) 0deg)`,
+                          }}
+                        >
+                          <span className="h-3.5 w-3.5 rounded-full bg-card" />
+                        </span>
+                      ) : (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      )
+                    ) : (
+                      <Paperclip className="h-5 w-5" />
+                    )}
+                  </Button>
+                ))}
 
-          {/* Attach button (always left of input) */}
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isUploading}
-            title="Attach image"
-            style={{ position: "relative", overflow: "hidden", flexShrink: 0 }}
-          >
-            {isUploading ? (
-              <div style={{ position: "relative", display: "grid", placeContent: "center" }}>
-                <div
-                  style={{
-                    width: `${uploadProgress}%`,
-                    height: "100%",
-                    background: "rgba(0,0,0,0.15)",
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    transition: "width 0.3s ease",
+              <input
+                type="file"
+                ref={fileInputRef}
+                accept="image/jpeg,image/png,image/gif,image/webp,image/jpg,video/mp4,video/webm,video/quicktime"
+                onChange={handleImageSelect}
+                style={{ display: "none" }}
+              />
+
+              {!isRecording && (
+                <textarea
+                  ref={inputRef}
+                  value={composerText}
+                  onChange={(e) => {
+                    if (editing) {
+                      setEditMessageText(e.target.value);
+                    } else {
+                      setInputMessage(e.target.value);
+                    }
+                    ctxHandleInputChange(roomId);
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSendMessage(e);
+                    }
+                  }}
+                  rows={1}
+                  dir="auto"
+                  placeholder={
+                    editing
+                      ? "Edit your message…"
+                      : isConnected
+                        ? "Type a message…"
+                        : "Waiting for another user to join…"
+                  }
+                  className="max-h-32 min-h-[2.25rem] flex-1 resize-none self-center bg-transparent px-2 py-2 text-sm leading-5 text-foreground placeholder:text-muted-foreground focus:outline-none"
                 />
-                {React.cloneElement(icons.img, { fill: iconFill })}
-              </div>
-            ) : (
-              /* Paperclip icon */
-              <svg viewBox="0 0 24 24" fill="none" stroke={iconFill} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" width="var(--svg-size)" height="var(--svg-size)">
-                <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48" />
-              </svg>
-            )}
-          </button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            accept="image/jpeg,image/png,image/gif,image/webp,image/jpg,video/mp4,video/webm,video/quicktime"
-            onChange={handleImageSelect}
-            style={{ display: "none" }}
-          />
+              )}
 
-          <textarea
-            ref={inputRef}
-            type="text"
-            value={editingMessageId ? editMessageText : inputMessage}
-            onChange={(e) => {
-              if (editingMessageId) {
-                setEditMessageText(e.target.value);
-              } else {
-                setInputMessage(e.target.value);
-              }
-              ctxHandleInputChange(roomId);
-            }}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSendMessage(e);
-              }
-            }}
-            dir="auto"
-            placeholder={
-              editingMessageId
-                ? "Edit your message…"
-                : isRecording
-                  ? ""
-                  : isConnected
-                    ? "Type a message…"
-                    : "Waiting for another user to join…"
-            }
-            className={isBright ? "bright-placeholder" : "dark-placeholder"}
-          />
-
-          {/* Voice button (right, shown when input is empty) */}
-          <button
-            type="button"
-            ref={plusButtonRef}
-            className="plusButton"
-            title="Hold to record voice message"
-            disabled={!socketConnected}
-            onMouseDown={startRecording}
-            onMouseUp={stopRecording}
-            onMouseLeave={() => { if (isRecording) stopRecording(); }}
-            onTouchStart={startRecording}
-            onTouchEnd={stopRecording}
-            style={{ touchAction: "none" }}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill={isRecording ? "var(--txt-clr-error)" : iconFill}
-              width="var(--svg-size)"
-              height="var(--svg-size)"
-            >
-              <rect x="9" y="2" width="6" height="13" rx="3" />
-              <path d="M5 10a7 7 0 0014 0" fill="none" stroke={isRecording ? "var(--txt-clr-error)" : iconFill} strokeWidth="1.5" strokeLinecap="round" />
-              <line x1="12" y1="19" x2="12" y2="22" stroke={isRecording ? "var(--txt-clr-error)" : iconFill} strokeWidth="1.5" strokeLinecap="round" />
-              <line x1="9" y1="22" x2="15" y2="22" stroke={isRecording ? "var(--txt-clr-error)" : iconFill} strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-          </button>
-
-          {/* Send button (right, shown when input has content) */}
-          <button
-            type="submit"
-            ref={sendButtonRef}
-            className="sendButton"
-            disabled={
-              editingMessageId ? !editMessageText.trim() : !inputMessage.trim()
-            }
-          >
-            {React.cloneElement(icons.send, { fill: iconFill })}
-          </button>
-        </form>
+              {/* Right control — recording row, send, or mic */}
+              {isRecording ? (
+                <VoiceRecorder
+                  isRecording
+                  recordingDuration={recordingDuration}
+                  onStop={stopRecording}
+                  onCancel={cancelRecording}
+                  formatDuration={formatAudioDuration}
+                />
+              ) : hasContent ? (
+                <Button
+                  type="submit"
+                  variant="default"
+                  size="icon"
+                  aria-label={editing ? "Save edit" : "Send message"}
+                  className="shrink-0"
+                >
+                  <Send className="h-5 w-5" />
+                </Button>
+              ) : (
+                <VoiceRecorder
+                  isRecording={false}
+                  onStart={startRecording}
+                  formatDuration={formatAudioDuration}
+                />
+              )}
+            </form>
+          );
+        })()}
       </div>
 
       {/* ── Context menu overlay ── */}
@@ -2077,13 +1973,6 @@ export default function ChatPage() {
         </>
       )}
 
-      {/* ── Upload error banner ── */}
-      {uploadError && (
-        <div className="upload-error-banner">
-          <span>{uploadError}</span>
-          <button onClick={() => setUploadError(null)}>✕</button>
-        </div>
-      )}
     </div>
   );
 }

@@ -710,8 +710,8 @@ export default function HomePage() {
               <div
                 className="absolute inset-0 rounded-full flex items-center justify-center pointer-events-none z-10"
                 style={{
-                  background: "#00A884",
-                  color: "#fff",
+                  background: "var(--primary)",
+                  color: "var(--primary-foreground)",
                   fontSize: 13,
                   fontWeight: 600,
                 }}
@@ -730,7 +730,7 @@ export default function HomePage() {
                   colorTextSecondary: isBright ? "#6b7280" : "#d1d5db",
                   colorInputBackground: isBright ? "#f5f5f5" : "#2a2a2a",
                   colorInputText: isBright ? "#111827" : "#f5f5f5",
-                  colorPrimary: "#00A884",
+                  colorPrimary: "#171717",
                   colorDanger: "#f87171",
                   borderRadius: "0.625rem",
                   fontFamily: "inherit",
@@ -767,7 +767,7 @@ export default function HomePage() {
                     colorTextSecondary: "#6b7280",
                     colorInputBackground: "#f9fafb",
                     colorInputText: "#111827",
-                    colorPrimary: "#00A884",
+                    colorPrimary: "#171717",
                     colorDanger: "#ef4444",
                     borderRadius: "0.5rem",
                     fontFamily: "inherit",
@@ -835,7 +835,7 @@ export default function HomePage() {
                   ) : (
                     <span
                       className="text-xl font-semibold"
-                      style={{ color: "#00A884" }}
+                      style={{ color: "var(--primary)" }}
                     >
                       {(dbUser?.displayName ||
                         dbUser?.username ||
@@ -873,7 +873,7 @@ export default function HomePage() {
                       ) : (
                         <span
                           className="text-lg font-semibold"
-                          style={{ color: "#00A884" }}
+                          style={{ color: "var(--primary)" }}
                         >
                           {name[0].toUpperCase()}
                         </span>

@@ -22,68 +22,13 @@
     transform: translateX(-50%);
   }
 
-  .message-input-form {
+  /* The composer form is now a shadcn/Tailwind flex row (see ChatPage). The
+   * textarea auto-grows on its own; the dock provides the frosted pill. */
+  form {
     width: 100%;
-    position: relative;
-    height: auto;
-    @include flex(center, space-between, row, var(--space-1));
-    padding: 0;
 
     textarea {
-      flex: 1;
-      height: fit-content;
-      max-height: 30ch;
-      padding: var(--space-1) var(--space-2);
-      text-align: auto;
-      background: var(--body-bg-clr-gray);
-      border: 1px solid var(--accent-clr);
-      outline: none;
-      @include p();
-      resize: none;
-      line-height: 95% !important;
-      color: var(--txt-clr);
-      field-sizing: content !important;
-      border-radius: var(--border-radius-large3);
-    }
-
-    .bright-placeholder::placeholder {
-      color: var(--txt-clr-disabled);
-      @include small();
-    }
-
-    .dark-placeholder::placeholder {
-      color: var(--txt-clr-disabled);
-      @include small();
-    }
-
-    button {
-      width: var(--svg-size);
-      height: var(--svg-size);
-      @include center();
-      flex-shrink: 0;
-      svg {
-        width: var(--svg-size);
-        height: var(--svg-size);
-        transition: all 0.5s ease !important;
-      }
-    }
-
-    .sendButton,
-    .editButton {
-      opacity: 0;
-      width: 0;
-      display: none;
-      pointer-events: none;
-      transition: all 0.1s linear;
-    }
-
-    /* Voice mic button (right side, hidden when typing) */
-    .plusButton {
-      opacity: 1;
-      width: var(--svg-size);
-      display: grid;
-      pointer-events: all;
-      transition: all 0.1s linear;
+      field-sizing: content;
     }
   }
 }
