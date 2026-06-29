@@ -1,4 +1,3 @@
-import { forwardRef } from "react";
 import { Mic, Send, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,79 +7,92 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 
+/* Decorative equalizer shown while recording. Purely an affordance that a
+ * recording is in progress — not a render of the captured waveform. */
+function Equalizer() {
+  return (
+    <div className="flex flex-1 items-center justify-end gap-[3px] overflow-hidden h-5">
+      {Array.from({ length: 28 }).map((_, i) => (
+        <span
+          key={i}
+          className="eq-bar bg-muted-foreground"
+          style={{ height: `${8 + (i % 5) * 3}px`, animationDelay: `${(i % 7) * 0.08}s` }}
+        />
+      ))}
+    </div>
+  );
+}
+
 /**
  * Tap-to-toggle voice recorder control (shadcn/ui).
  *
  * Idle: a single ghost mic button. Tapping it starts recording — a discrete
- * event, so awaiting getUserMedia no longer races a button release (the old
- * press-and-hold bug where a quick tap captured nothing).
+ * event, so awaiting getUserMedia no longer races a button release.
  *
- * Recording: trash (cancel), live timer, and send (stop + upload) buttons.
- *
- * Renders a single root <div> in every state and forwards the ref to it so the
- * parent's GSAP show/hide timeline keeps a stable DOM node to animate.
+ * Recording: takes over the composer row — live timer, equalizer, plus trash
+ * (cancel) and send (stop + upload) buttons, all uniform shadcn controls.
  */
-const VoiceRecorder = forwardRef(function VoiceRecorder(
-  {
-    isRecording,
-    recordingDuration,
-    onStart,
-    onStop,
-    onCancel,
-    disabled = false,
-    formatDuration,
-  },
-  ref,
-) {
+function VoiceRecorder({
+  isRecording,
+  recordingDuration,
+  onStart,
+  onStop,
+  onCancel,
+  disabled = false,
+  formatDuration,
+}) {
+  if (isRecording) {
+    return (
+      <div className="flex flex-1 items-center gap-2 min-w-0">
+        <span className="h-2.5 w-2.5 rounded-full bg-destructive animate-pulse shrink-0" />
+        <span className="text-sm tabular-nums text-foreground shrink-0">
+          {formatDuration(recordingDuration)}
+        </span>
+        <Equalizer />
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={onCancel}
+          aria-label="Cancel recording"
+          className="shrink-0 rounded-full text-destructive"
+        >
+          <Trash2 className="h-5 w-5" />
+        </Button>
+        <Button
+          type="button"
+          variant="default"
+          size="icon"
+          onClick={onStop}
+          aria-label="Send voice message"
+          className="shrink-0"
+        >
+          <Send className="h-5 w-5" />
+        </Button>
+      </div>
+    );
+  }
+
   return (
-    <div ref={ref} className="flex items-center gap-1.5 flex-shrink-0">
-      {isRecording ? (
-        <>
+    <TooltipProvider delayDuration={300}>
+      <Tooltip>
+        <TooltipTrigger asChild>
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            onClick={onCancel}
-            aria-label="Cancel recording"
-            className="text-destructive"
+            onClick={onStart}
+            disabled={disabled}
+            aria-label="Record voice message"
+            className="shrink-0 rounded-full text-muted-foreground"
           >
-            <Trash2 className="h-5 w-5" />
+            <Mic className="h-5 w-5" />
           </Button>
-          <span className="flex items-center gap-1.5 text-sm tabular-nums text-destructive whitespace-nowrap">
-            <span className="h-2.5 w-2.5 rounded-full bg-destructive animate-pulse" />
-            {formatDuration(recordingDuration)}
-          </span>
-          <Button
-            type="button"
-            variant="default"
-            size="icon"
-            onClick={onStop}
-            aria-label="Send voice message"
-          >
-            <Send className="h-5 w-5" />
-          </Button>
-        </>
-      ) : (
-        <TooltipProvider delayDuration={300}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={onStart}
-                disabled={disabled}
-                aria-label="Record voice message"
-              >
-                <Mic className="h-5 w-5" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Record voice message</TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      )}
-    </div>
+        </TooltipTrigger>
+        <TooltipContent>Record voice message</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
-});
+}
 
 export default VoiceRecorder;
