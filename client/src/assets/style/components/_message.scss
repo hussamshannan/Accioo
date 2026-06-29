@@ -445,6 +445,63 @@
     color: var(--accent-clr);
   }
 }
+
+/* ── Story-reply quote (denormalized snapshot of the replied-to story) ──── */
+.container .chat .messages .message .story-reply-snippet {
+  @include flex(center, flex-start, row, var(--space-1));
+  width: 100%;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: var(--border-radius-large);
+  margin-bottom: var(--space-mini);
+  padding: 4px;
+  overflow: hidden;
+
+  .story-reply-thumb {
+    width: 34px;
+    height: 46px;
+    border-radius: calc(var(--border-radius-large) - 4px);
+    flex-shrink: 0;
+    overflow: hidden;
+    @include center();
+
+    img,
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .story-reply-thumb-text {
+      font-size: 0.5rem;
+      line-height: 1.1;
+      color: #fff;
+      padding: 2px;
+      text-align: center;
+      overflow: hidden;
+    }
+  }
+
+  .story-reply-meta {
+    @include flex(flex-start, center, column, 1px);
+    padding-inline-end: var(--space-1);
+    overflow: hidden;
+
+    .story-reply-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--txt-clr);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 200px;
+    }
+
+    .story-reply-sub {
+      font-size: 0.62rem;
+      color: var(--txt-clr-dark);
+    }
+  }
+}
 /* ── Voice message (WhatsApp-style waveform player) ─────────────────────── */
 .container .chat .messages .message .voice-msg {
   display: flex;

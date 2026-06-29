@@ -270,8 +270,22 @@ const sendTextMessage = async (req, res) => {
     if (!conv.participants.some((p) => p.toString() === me._id.toString()))
       return res.status(403).json({ error: "Not a participant" });
 
-    const { text } = req.body;
+    const { text, storyReply: rawStoryReply } = req.body;
     if (!text?.trim()) return res.status(400).json({ error: "text required" });
+
+    // Sanitize the optional story-reply snapshot — keep only known fields.
+    const hex24 = (v) => typeof v === "string" && /^[0-9a-fA-F]{24}$/.test(v);
+    let storyReply = null;
+    if (rawStoryReply && typeof rawStoryReply === "object") {
+      storyReply = {
+        storyId: hex24(rawStoryReply.storyId) ? rawStoryReply.storyId : null,
+        storyAuthor: hex24(rawStoryReply.storyAuthor) ? rawStoryReply.storyAuthor : null,
+        mediaUrl: String(rawStoryReply.mediaUrl || ""),
+        mediaType: String(rawStoryReply.mediaType || ""),
+        storyText: String(rawStoryReply.storyText || ""),
+        backgroundColor: String(rawStoryReply.backgroundColor || ""),
+      };
+    }
 
     const now = new Date();
     const msg = await Message.create({
@@ -279,6 +293,7 @@ const sendTextMessage = async (req, res) => {
       sender: me._id,
       type: "text",
       text: text.trim(),
+      storyReply,
     });
 
     await Conversation.findByIdAndUpdate(conv._id, {
@@ -312,6 +327,7 @@ const sendTextMessage = async (req, res) => {
           isMe: false,
           timestamp: now.toISOString(),
           sender: me._id.toString(),
+          storyReply: storyReply || null,
         });
       }
     });
