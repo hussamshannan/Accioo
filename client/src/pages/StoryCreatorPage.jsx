@@ -166,14 +166,18 @@ export default function StoryCreatorPage() {
         {/* Caption on image (when media selected) */}
         {mode === "image" && preview && (
           <div className="absolute bottom-0 inset-x-0 px-4 pb-4">
-            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-sm border border-white/20 rounded-2xl px-4 py-2">
+            <div className="flex items-end gap-2 bg-black/40 backdrop-blur-sm border border-white/20 rounded-2xl px-4 py-2">
               <textarea
                 value={text}
-                onChange={(e) => setText(e.target.value)}
+                onChange={(e) => {
+                  setText(e.target.value);
+                  e.target.style.height = "auto";
+                  e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+                }}
                 placeholder="Add a caption…"
-                maxLength={150}
+                maxLength={500}
                 rows={1}
-                className="flex-1 bg-transparent text-white text-sm placeholder:text-white/50 resize-none outline-none"
+                className="flex-1 bg-transparent text-white text-sm placeholder:text-white/50 resize-none outline-none leading-snug max-h-[120px] overflow-y-auto"
               />
             </div>
           </div>
