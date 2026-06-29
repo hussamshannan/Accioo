@@ -35,6 +35,10 @@ export default function StoryViewerPage() {
   const [showReply, setShowReply] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [transitioning, setTransitioning] = useState(false);
+  const [captionExpanded, setCaptionExpanded] = useState(false);
+  const [captionOverflows, setCaptionOverflows] = useState(false);
+
+  const captionRef = useRef(null);
 
   const progressRef = useRef(null);
   const startTimeRef = useRef(null);
@@ -119,7 +123,7 @@ export default function StoryViewerPage() {
   }, [currentStory?._id]);
 
   /* ── Progress timer ── */
-  const paused = isPaused || showReply || showViewers;
+  const paused = isPaused || showReply || showViewers || captionExpanded;
   useEffect(() => {
     if (!currentStory || paused) return;
     setProgress(0);
@@ -137,13 +141,37 @@ export default function StoryViewerPage() {
   }, [currentStory?._id, paused, goNext]);
 
   const handlePauseToggle = (pausing) => {
-    if (showReply || showViewers) return;
+    if (showReply || showViewers || captionExpanded) return;
     if (pausing) {
       pausedAtRef.current = Date.now() - startTimeRef.current;
       if (progressRef.current) cancelAnimationFrame(progressRef.current);
     }
     setIsPaused(pausing);
   };
+
+  /* ── Caption expand/collapse (taps pause the story while open) ── */
+  const toggleCaption = (e) => {
+    e?.stopPropagation();
+    setCaptionExpanded((open) => {
+      if (!open) {
+        // expanding → freeze progress where it is
+        pausedAtRef.current = Date.now() - startTimeRef.current;
+        if (progressRef.current) cancelAnimationFrame(progressRef.current);
+      }
+      return !open;
+    });
+  };
+
+  // Reset + measure whether the caption exceeds two lines whenever the story changes.
+  useLayoutEffect(() => {
+    setCaptionExpanded(false);
+    setCaptionOverflows(false);
+    const id = requestAnimationFrame(() => {
+      const el = captionRef.current;
+      if (el) setCaptionOverflows(el.scrollHeight > el.clientHeight + 1);
+    });
+    return () => cancelAnimationFrame(id);
+  }, [currentStory?._id, currentStory?.text]);
 
   /* ── Delete ── */
   const handleDelete = async () => {
@@ -277,7 +305,8 @@ export default function StoryViewerPage() {
           <video key={currentStory._id} src={currentStory.mediaUrl}
             className="w-full h-full object-cover" autoPlay muted loop playsInline />
         )}
-        {currentStory.text && (
+        {/* Text stories: big centered text. Media captions render in the bottom bar. */}
+        {currentStory.type === "text" && currentStory.text && (
           <div className="absolute inset-0 flex items-center justify-center p-8 pointer-events-none">
             <p className="text-white text-2xl font-bold text-center leading-snug"
               style={{ textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}>
@@ -375,6 +404,30 @@ export default function StoryViewerPage() {
 
       {/* ── Bottom bar (z-30) ── */}
       <div ref={bottomBarRef} className="absolute inset-x-0 bottom-0 z-30 flex flex-col">
+        {/* Media caption — clamped to 2 lines; tap to expand (pauses) / collapse */}
+        {currentStory.type !== "text" && currentStory.text && (
+          <div className="px-4 pb-2" {...blockProps}>
+            <p
+              ref={captionRef}
+              onClick={captionOverflows ? toggleCaption : undefined}
+              className={`text-white text-sm leading-snug whitespace-pre-wrap ${
+                captionOverflows ? "cursor-pointer" : ""
+              } ${captionExpanded ? "max-h-[42vh] overflow-y-auto" : "line-clamp-2"}`}
+              style={{ textShadow: "0 1px 6px rgba(0,0,0,0.65)" }}
+            >
+              {currentStory.text}
+            </p>
+            {captionOverflows && (
+              <button
+                onClick={toggleCaption}
+                className="mt-0.5 text-white/55 text-xs font-medium active:text-white/80"
+              >
+                {captionExpanded ? "less" : "more"}
+              </button>
+            )}
+          </div>
+        )}
+
         {/* Group dots */}
         {feed.length > 1 && !showReply && (
           <div className="flex justify-center gap-1.5 mb-3">
