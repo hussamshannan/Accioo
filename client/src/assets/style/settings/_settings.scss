@@ -97,6 +97,11 @@
   --border-radius-extra-large: calc(var(--radius) * 4);
   --border-radius-circle: 50%;
 
+  /* Message bubble padding scales gently with the theme radius so rounder
+     themes get roomier bubbles. */
+  --space-bubble: calc(var(--space-mini) + var(--radius) * 0.45);
+  --space-bubble-x: calc(var(--space-1) + var(--radius) * 0.45);
+
   --svg-fill: #0a0a0a;
   --svg-fill-light: #fafafa;
   --svg-fill-gray: #a1a1a1;
