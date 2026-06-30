@@ -1,91 +1,18 @@
-import { createContext, useContext, useEffect, useState, useRef } from "react";
+import { createContext, useContext, useEffect, useState, useRef, useCallback } from "react";
 import defaultImg from "../assets/images/frank-huang-WxQdHLGT7s8-unsplash.jpg";
+import {
+  THEMES,
+  THEME_LIST,
+  DEFAULT_THEME_ID,
+  isValidThemeId,
+  resolveThemeVars,
+} from "../utils/themes";
+import { useAuth } from "./AuthContext";
+import { updateTheme as updateThemeApi } from "../services/userService";
 
 const ThemeContext = createContext(null);
 
-const LIGHT_VARS = {
-  "--background": "#ffffff",
-  "--foreground": "#0a0a0a",
-  "--card": "#ffffff",
-  "--card-foreground": "#0a0a0a",
-  "--popover": "#ffffff",
-  "--popover-foreground": "#0a0a0a",
-  "--primary": "#171717",
-  "--primary-foreground": "#fafafa",
-  "--secondary": "#f5f5f5",
-  "--secondary-foreground": "#171717",
-  "--muted": "#f5f5f5",
-  "--muted-foreground": "#737373",
-  "--accent": "#f5f5f5",
-  "--accent-foreground": "#171717",
-  "--destructive": "#e7000b",
-  "--destructive-foreground": "#fafafa",
-  "--border": "#e5e5e5",
-  "--input": "#e5e5e5",
-  "--ring": "#a1a1a1",
-  "--radius": "0.625rem",
-  "--bubble-sent": "#EFFDDE",
-  "--bubble-received": "#FFFFFF",
-  "--bubble-sent-fg": "#0a0a0a",
-  "--bubble-received-fg": "#0a0a0a",
-  "--chat-bg": "#EFE7DA",
-  "--body-bg-clr-frosted": "rgba(255,255,255,0.82)",
-  // ChatPage legacy vars
-  "--primary-clr": "#171717",
-  "--svg-fill": "#0a0a0a",
-  "--svg-fill-light": "#fafafa",
-  "--svg-fill-seen": "#171717",
-  "--body-bg-clr": "#ffffff",
-  "--body-bg-clr-gray": "#f5f5f5",
-  "--body-bg-clr-transparent": "#e5e5e5",
-  "--txt-clr": "#0a0a0a",
-  "--txt-clr-dark": "#737373",
-  "--txt-clr-disabled": "#a1a1a1",
-  "--txt-clr-light": "#fafafa",
-  "--accent-clr": "#e5e5e5",
-};
-
-const DARK_VARS = {
-  "--background": "#0a0a0a",
-  "--foreground": "#fafafa",
-  "--card": "#171717",
-  "--card-foreground": "#fafafa",
-  "--popover": "#171717",
-  "--popover-foreground": "#fafafa",
-  "--primary": "#fafafa",
-  "--primary-foreground": "#171717",
-  "--secondary": "#262626",
-  "--secondary-foreground": "#fafafa",
-  "--muted": "#262626",
-  "--muted-foreground": "#a1a1a1",
-  "--accent": "#262626",
-  "--accent-foreground": "#fafafa",
-  "--destructive": "#ff6467",
-  "--destructive-foreground": "#fafafa",
-  "--border": "#282828",
-  "--input": "#343434",
-  "--ring": "#737373",
-  "--radius": "0.625rem",
-  "--bubble-sent": "#2B5278",
-  "--bubble-received": "#182533",
-  "--bubble-sent-fg": "#fafafa",
-  "--bubble-received-fg": "#fafafa",
-  "--chat-bg": "#17212B",
-  "--body-bg-clr-frosted": "rgba(17,27,33,0.82)",
-  // ChatPage legacy vars
-  "--primary-clr": "#fafafa",
-  "--svg-fill": "#fafafa",
-  "--svg-fill-light": "#fafafa",
-  "--svg-fill-seen": "#fafafa",
-  "--body-bg-clr": "#111B21",
-  "--body-bg-clr-gray": "#1F2C34",
-  "--body-bg-clr-transparent": "#262626",
-  "--txt-clr": "#fafafa",
-  "--txt-clr-dark": "#a1a1a1",
-  "--txt-clr-disabled": "#737373",
-  "--txt-clr-light": "#fafafa",
-  "--accent-clr": "#2A3942",
-};
+const MODES = ["system", "light", "dark"];
 
 function applyVars(vars, dark) {
   const el = document.documentElement;
@@ -96,17 +23,22 @@ function applyVars(vars, dark) {
 const getDeviceDark = () => window.matchMedia("(prefers-color-scheme: dark)").matches;
 
 export function ThemeProvider({ children }) {
+  const { isSignedIn, dbUser, setDbUser } = useAuth();
+
+  // Named theme (palette). Persisted per-user; localStorage cache avoids a flash
+  // on boot before dbUser loads.
+  const [themeName, setThemeNameState] = useState(() => {
+    const saved = localStorage.getItem("themeName");
+    return saved && isValidThemeId(saved) ? saved : DEFAULT_THEME_ID;
+  });
+
   // "system" | "light" | "dark"
   const [themeMode, setThemeModeState] = useState(() => {
     const saved = localStorage.getItem("themeMode");
-    // Migrate legacy values and wipe them so device preference takes over
-    if (saved === "solid-dark" || saved === "light" || saved === "dark") {
-      localStorage.removeItem("themeMode");
-    }
-    return "system"; // always start following device
+    return MODES.includes(saved) ? saved : "system";
   });
 
-  // The actual resolved dark/light value (used for applying vars)
+  // The resolved dark/light value used to apply vars
   const [isDark, setIsDark] = useState(() => getDeviceDark());
 
   const [bgimage, setBgimage] = useState(null);
@@ -114,16 +46,40 @@ export function ThemeProvider({ children }) {
   const videoRef = useRef(null);
   const bgimageRef = useRef(null);
 
-  // When themeMode changes, recalculate isDark (no localStorage persistence — always resets to device on reload)
+  // Push the user's theme preference to the server (no-op when signed out).
+  const persistTheme = useCallback(
+    (patch) => {
+      if (!isSignedIn) return;
+      updateThemeApi(patch)
+        .then((res) => {
+          if (res?.data?.user) setDbUser?.(res.data.user);
+        })
+        .catch((err) => console.error("Failed to save theme:", err));
+    },
+    [isSignedIn, setDbUser]
+  );
+
+  // Hydrate from the signed-in user's saved preference. Uses the raw state
+  // setters so this does NOT echo back to the server.
   useEffect(() => {
-    if (themeMode === "system") {
-      setIsDark(getDeviceDark());
-    } else {
-      setIsDark(themeMode === "dark");
+    if (!dbUser) return;
+    if (dbUser.themeName && isValidThemeId(dbUser.themeName)) {
+      setThemeNameState(dbUser.themeName);
+      localStorage.setItem("themeName", dbUser.themeName);
     }
+    if (MODES.includes(dbUser.themeMode)) {
+      setThemeModeState(dbUser.themeMode);
+      localStorage.setItem("themeMode", dbUser.themeMode);
+    }
+  }, [dbUser]);
+
+  // Recalculate isDark when the mode changes
+  useEffect(() => {
+    if (themeMode === "system") setIsDark(getDeviceDark());
+    else setIsDark(themeMode === "dark");
   }, [themeMode]);
 
-  // Listen to OS theme changes when in "system" mode
+  // Follow OS theme changes while in "system" mode
   useEffect(() => {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = (e) => {
@@ -133,10 +89,10 @@ export function ThemeProvider({ children }) {
     return () => mq.removeEventListener("change", handler);
   }, [themeMode]);
 
-  // Apply CSS vars whenever isDark changes
+  // Apply CSS vars whenever the resolved theme or mode changes
   useEffect(() => {
-    applyVars(isDark ? DARK_VARS : LIGHT_VARS, isDark);
-  }, [isDark]);
+    applyVars(resolveThemeVars(themeName, isDark), isDark);
+  }, [isDark, themeName]);
 
   useEffect(() => {
     const saved = localStorage.getItem("selectedBackgroundImage");
@@ -145,17 +101,28 @@ export function ThemeProvider({ children }) {
 
   const isBright = !isDark;
 
-  const handleSetThemeMode = (mode) => {
-    if (mode === "light" || mode === "dark" || mode === "system") setThemeModeState(mode);
+  // Public: change the named theme (applies app-wide + persists)
+  const setThemeName = (id) => {
+    if (!isValidThemeId(id) || id === themeName) return;
+    setThemeNameState(id);
+    localStorage.setItem("themeName", id);
+    persistTheme({ themeName: id });
+  };
+
+  // Public: change light/dark/system mode (persists)
+  const setThemeMode = (mode) => {
+    if (!MODES.includes(mode) || mode === themeMode) return;
+    setThemeModeState(mode);
+    localStorage.setItem("themeMode", mode);
+    persistTheme({ themeMode: mode });
   };
 
   // Cycle: system → light → dark → system
-  const toggle = () =>
-    setThemeModeState((m) => {
-      if (m === "system") return isDark ? "light" : "dark";
-      if (m === "light") return "dark";
-      return "system";
-    });
+  const toggle = () => {
+    const next =
+      themeMode === "system" ? (isDark ? "light" : "dark") : themeMode === "light" ? "dark" : "system";
+    setThemeMode(next);
+  };
 
   const handleSetBgImage = (src) => {
     setBgimage(src);
@@ -165,10 +132,18 @@ export function ThemeProvider({ children }) {
   return (
     <ThemeContext.Provider
       value={{
+        // named theme
+        themeName,
+        setThemeName,
+        themes: THEME_LIST,
+        THEMES,
+        // mode
         themeMode,
-        setThemeMode: handleSetThemeMode,
+        setThemeMode,
         toggle,
         isBright,
+        isDark,
+        // chat background (unchanged)
         bgimage,
         setBgimage,
         handleSetBgImage,

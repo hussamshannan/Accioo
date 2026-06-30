@@ -26,6 +26,13 @@ import {
 } from "@/components/ui/dialog";
 import UserAvatar from "@/components/ui/UserAvatar";
 import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import {
   ArrowLeft,
   Plus,
   Heart,
@@ -37,6 +44,8 @@ import {
   Tag,
   Camera,
   Pencil,
+  MoreVertical,
+  Palette,
 } from "lucide-react";
 import { PostGridSkeleton } from "@/components/skeletons/ProfilePageSkeleton";
 
@@ -492,22 +501,31 @@ export default function ProfilePage() {
         <span className="text-base font-bold text-foreground flex-1">
           @{dbUser.username}
         </span>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setShowEdit(true)}
-          className="text-muted-foreground"
-        >
-          <Pencil className="w-4 h-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setShowUpload(true)}
-          className="text-muted-foreground"
-        >
-          <Plus className="w-5 h-5" />
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="text-muted-foreground" aria-label="Menu">
+              <MoreVertical className="w-5 h-5" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="end"
+            className="w-44 bg-popover text-popover-foreground border-border"
+          >
+            <DropdownMenuItem onClick={() => setShowEdit(true)}>
+              <Pencil className="w-4 h-4" />
+              Edit Profile
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setShowUpload(true)}>
+              <Plus className="w-4 h-4" />
+              New Post
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate("/settings/appearance")}>
+              <Palette className="w-4 h-4" />
+              Theme
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <ScrollArea className="flex-1">

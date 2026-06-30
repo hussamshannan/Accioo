@@ -24,6 +24,7 @@ import "ldrs/react/DotPulse.css";
 import { formatTime } from "../utils/formatTime";
 import { EMOJIS } from "../utils/constants";
 import ImageLightbox from "../components/ui/ImageLightbox";
+import ThemePicker from "@/components/ui/ThemePicker";
 import ForwardDialog from "../components/ui/ForwardDialog";
 import LinkPreview from "../components/ui/LinkPreview";
 import { compressImage, compressVideo, MAX_SIZE } from "../utils/mediaCompression";
@@ -1016,7 +1017,7 @@ export default function ChatPage() {
               <div className="dropdown-divider" />
 
               {/* Change Background */}
-              <button className="dropdown-item" onClick={() => closeDropdown(() => openWallpaperSheet())}>
+              <button className="dropdown-item" onClick={() => closeDropdown(() => { setWallpaperTab((t) => (t === "themes" ? "photos" : t)); openWallpaperSheet(); })}>
                 <div className="dropdown-icon" style={{ background: "#FF9800" }}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="3" width="18" height="18" rx="2" />
@@ -1025,6 +1026,20 @@ export default function ChatPage() {
                   </svg>
                 </div>
                 <span className="dropdown-label">Change Background</span>
+              </button>
+
+              {/* Theme */}
+              <button className="dropdown-item" onClick={() => closeDropdown(() => { setWallpaperTab("themes"); openWallpaperSheet(); })}>
+                <div className="dropdown-icon" style={{ background: "#673AB7" }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="13.5" cy="6.5" r=".5" fill="#fff" />
+                    <circle cx="17.5" cy="10.5" r=".5" fill="#fff" />
+                    <circle cx="8.5" cy="7.5" r=".5" fill="#fff" />
+                    <circle cx="6.5" cy="12.5" r=".5" fill="#fff" />
+                    <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" />
+                  </svg>
+                </div>
+                <span className="dropdown-label">Theme</span>
               </button>
 
               {/* Search */}
@@ -1858,7 +1873,9 @@ export default function ChatPage() {
 
             {/* Header */}
             <div className="flex items-center justify-between px-5 pb-3">
-              <h3 className="text-[15px] font-bold text-[var(--txt-clr)]">Chat Wallpaper</h3>
+              <h3 className="text-[15px] font-bold text-[var(--txt-clr)]">
+                {wallpaperTab === "themes" ? "App Theme" : "Chat Wallpaper"}
+              </h3>
               <button
                 onClick={closeWallpaperSheet}
                 className="w-8 h-8 rounded-full flex items-center justify-center
@@ -1892,6 +1909,16 @@ export default function ChatPage() {
                   }`}
               >
                 Solid Colors
+              </button>
+              <button
+                onClick={() => setWallpaperTab("themes")}
+                className={`flex-1 py-2 rounded-lg text-[13px] font-semibold transition-all duration-200
+                  ${wallpaperTab === "themes"
+                    ? "bg-[var(--body-bg-clr)] text-[var(--txt-clr)] shadow-sm"
+                    : "text-[var(--txt-clr-dark)] hover:text-[var(--txt-clr)]"
+                  }`}
+              >
+                Theme
               </button>
             </div>
 
@@ -2001,6 +2028,15 @@ export default function ChatPage() {
                       </span>
                     </button>
                   ))}
+                </div>
+              )}
+
+              {wallpaperTab === "themes" && (
+                <div className="pb-2">
+                  <p className="mb-3 text-[12px] text-[var(--txt-clr-dark)] leading-snug">
+                    Changes the whole app for your account. Tap a palette to preview and apply.
+                  </p>
+                  <ThemePicker />
                 </div>
               )}
             </div>

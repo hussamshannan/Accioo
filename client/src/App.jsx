@@ -20,6 +20,7 @@ import StoryViewerPage from "./pages/StoryViewerPage";
 import StoryCreatorPage from "./pages/StoryCreatorPage";
 import PostViewerPage from "./pages/PostViewerPage";
 import ActivityPage from "./pages/ActivityPage";
+import ThemesPage from "./pages/ThemesPage";
 
 /* On desktop the sidebar already shows the conversation list, so the index
    route shows a welcome pane. On mobile it shows the full HomePage. */
@@ -71,6 +72,7 @@ function App() {
           <Route path="/stories/:userId" element={<StoryViewerPage />} />
           <Route path="/post/:postId" element={<PostViewerPage />} />
           <Route path="/activity" element={<ActivityPage />} />
+          <Route path="/settings/appearance" element={<ThemesPage />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

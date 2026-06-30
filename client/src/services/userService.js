@@ -8,6 +8,8 @@ export const getMe = () => api.get("/api/users/me");
 
 export const updateProfile = (data) => api.patch("/api/users/me", data);
 
+export const updateTheme = (data) => api.patch("/api/users/me/theme", data);
+
 export const getFriends = () => api.get("/api/friends");
 
 export const getFriendRequests = () => api.get("/api/friends/requests");

@@ -83,14 +83,24 @@
   --txt-clr-disabled: #a1a1a1;
   --txt-clr-placeholder: #a1a1a1;
 
-  --border-radius: 4px;
-  --border-radius-small: 2px;
-  --border-radius-large: 8px;
-  --border-radius-large2: 1rem;
-  --border-radius-large3: 2rem;
-  --border-radius-large4: 32px;
-  --border-radius-extra-large: 5rem;
+  /* Radius scale derived from the active theme's --radius (set inline by
+     ThemeContext per selected theme), so chat bubbles, the composer dock and
+     other rounded chat surfaces follow the chosen theme's roundness.
+     --radius fallback for first paint before the theme JS runs. */
+  --radius: 0.625rem;
+  --border-radius-small: calc(var(--radius) * 0.4);
+  --border-radius: calc(var(--radius) * 0.6);
+  --border-radius-large: var(--radius);
+  --border-radius-large2: calc(var(--radius) * 1.6);
+  --border-radius-large3: calc(var(--radius) * 2.4);
+  --border-radius-large4: calc(var(--radius) * 2.4);
+  --border-radius-extra-large: calc(var(--radius) * 4);
   --border-radius-circle: 50%;
+
+  /* Message bubble padding scales gently with the theme radius so rounder
+     themes get roomier bubbles. */
+  --space-bubble: calc(var(--space-mini) + var(--radius) * 0.45);
+  --space-bubble-x: calc(var(--space-1) + var(--radius) * 0.45);
 
   --svg-fill: #0a0a0a;
   --svg-fill-light: #fafafa;
