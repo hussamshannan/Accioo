@@ -42,6 +42,15 @@ const userSchema = new mongoose.Schema(
         ref: "ProfilePost",
       },
     ],
+    themeName: {
+      type: String,
+      default: "default",
+    },
+    themeMode: {
+      type: String,
+      enum: ["system", "light", "dark"],
+      default: "system",
+    },
     isOnline: {
       type: Boolean,
       default: false,

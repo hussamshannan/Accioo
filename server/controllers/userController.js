@@ -93,6 +93,55 @@ const updateProfile = async (req, res) => {
   }
 };
 
+// Keep in sync with client/src/utils/themes.js (THEME_IDS)
+const VALID_THEME_IDS = [
+  "default",
+  "light-green",
+  "qrafthive",
+  "sage-green",
+  "minimal-neutral",
+  "blue-orange",
+];
+const VALID_THEME_MODES = ["system", "light", "dark"];
+
+// PATCH /api/users/me/theme
+const updateTheme = async (req, res) => {
+  try {
+    const clerkId = req.auth?.userId || req.headers["x-clerk-id"];
+    const { themeName, themeMode } = req.body;
+
+    const update = {};
+    if (themeName !== undefined) {
+      if (!VALID_THEME_IDS.includes(themeName)) {
+        return res.status(400).json({ error: "Invalid themeName" });
+      }
+      update.themeName = themeName;
+    }
+    if (themeMode !== undefined) {
+      if (!VALID_THEME_MODES.includes(themeMode)) {
+        return res.status(400).json({ error: "Invalid themeMode" });
+      }
+      update.themeMode = themeMode;
+    }
+    if (Object.keys(update).length === 0) {
+      return res.status(400).json({ error: "Nothing to update" });
+    }
+
+    const user = await User.findOneAndUpdate(
+      { clerkId },
+      { $set: update },
+      { returnDocument: "after", runValidators: true }
+    ).select("-__v");
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    res.json({ user });
+  } catch (err) {
+    console.error("updateTheme error:", err);
+    res.status(500).json({ error: "Failed to update theme" });
+  }
+};
+
 // GET /api/users/me
 const getMe = async (req, res) => {
   try {
@@ -110,4 +159,4 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { searchUsers, getUserProfile, updateProfile, getMe };
+module.exports = { searchUsers, getUserProfile, updateProfile, updateTheme, getMe };

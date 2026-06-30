@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import UserAvatar from "@/components/ui/UserAvatar";
+import ThemePicker from "@/components/ui/ThemePicker";
 import {
   ArrowLeft,
   Plus,
@@ -596,6 +597,15 @@ export default function ProfilePage() {
           >
             Edit Profile
           </Button>
+        </div>
+
+        {/* ── Appearance (theme picker) ── */}
+        <Separator />
+        <div className="px-4 py-4">
+          <h3 className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            Appearance
+          </h3>
+          <ThemePicker />
         </div>
 
         {/* ── Story Highlights ── */}
