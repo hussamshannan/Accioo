@@ -101,6 +101,11 @@ const VALID_THEME_IDS = [
   "sage-green",
   "minimal-neutral",
   "blue-orange",
+  "stella",
+  "sandstone",
+  "cyber-2077",
+  "astra",
+  "jamaica",
 ];
 const VALID_THEME_MODES = ["system", "light", "dark"];
 
