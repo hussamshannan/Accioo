@@ -273,7 +273,7 @@
   .from-me {
     align-self: flex-end;
     background: var(--bubble-sent);
-    border-radius: 0.5rem 0.5rem 0 0.5rem;
+    border-radius: var(--radius) var(--radius) 0 var(--radius);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
 
     /* Bubble tail */
@@ -308,7 +308,7 @@
   .from-them {
     align-self: flex-start;
     background: var(--bubble-received);
-    border-radius: 0.5rem 0.5rem 0.5rem 0;
+    border-radius: var(--radius) var(--radius) var(--radius) 0;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 
     /* Bubble tail */
