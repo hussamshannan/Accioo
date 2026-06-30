@@ -103,7 +103,6 @@ const VALID_THEME_IDS = [
   "blue-orange",
   "stella",
   "sandstone",
-  "cyber-2077",
   "astra",
   "jamaica",
 ];
