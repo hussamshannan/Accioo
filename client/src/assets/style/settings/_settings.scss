@@ -177,6 +177,16 @@
   transition-behavior: allow-discrete !important;
   color: var(--txt-clr);
 }
+/* The universal `color` above lands directly on every <svg> AND its inner
+ * <path>s, overriding the color they would inherit from a parent (e.g. a
+ * Tailwind `text-*` utility on a button). lucide icons use
+ * stroke="currentColor", which then resolves to --txt-clr (white in dark mode)
+ * regardless of the button's text color → invisible send icon on a white
+ * circle. Let svg and its children inherit the surrounding color again. */
+svg,
+svg * {
+  color: inherit;
+}
 body {
   width: 100dvw;
   height: 100dvh;
