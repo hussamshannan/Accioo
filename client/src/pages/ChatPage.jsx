@@ -286,22 +286,16 @@ export default function ChatPage() {
     const handleUserDisconnected = () => {
       setIsConnected(false);
     };
-    const handleSetBackground = (data) => {
-      handleSetBgImage(data.imageUrl);
-    };
-
     socket.on("connect", handleReconnect);
     socket.on("room-joined", handleRoomJoined);
     socket.on("user-connected", handleUserConnected);
     socket.on("user-disconnected", handleUserDisconnected);
-    socket.on("set-background", handleSetBackground);
 
     return () => {
       socket.off("connect", handleReconnect);
       socket.off("room-joined", handleRoomJoined);
       socket.off("user-connected", handleUserConnected);
       socket.off("user-disconnected", handleUserDisconnected);
-      socket.off("set-background", handleSetBackground);
     };
   }, [socket, roomId]);
 
@@ -603,10 +597,10 @@ export default function ChatPage() {
   };
 
   /* ── gallery bg ── */
-  const handleSetBgImageForBoth = (src, name) => {
+  /* Wallpaper is a personal preference: apply it only for this user, never
+     broadcast it to the other participant. (`name` kept for call-site compat.) */
+  const handleSetBgImageForBoth = (src) => {
     handleSetBgImage(src);
-    if (socket)
-      socket.emit("set-background", { imageUrl: src, imageName: name, roomId });
   };
   const handleLongPressStart = (src, name) => {
     const t = setTimeout(() => handleSetBgImageForBoth(src, name), 1200);
