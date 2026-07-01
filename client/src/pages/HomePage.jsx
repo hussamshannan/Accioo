@@ -378,11 +378,21 @@ export default function HomePage() {
     return () => ctx.revert();
   }, [isLoading, storyFeed.length]);
 
-  // Track which conversation is currently open so we don't increment unread for it
+  // Track which conversation is currently open so we don't increment unread for
+  // it — and clear any existing unread the moment it's open (covers opening via
+  // URL/refresh on desktop, where handleOpenChat's click reset never ran).
   const openChatId = useRef(null);
   useEffect(() => {
     const match = location.pathname.match(/^\/chat\/([^/]+)$/);
-    openChatId.current = match ? match[1] : null;
+    const id = match ? match[1] : null;
+    openChatId.current = id;
+    if (id) {
+      setConversations((prev) =>
+        prev.some((c) => c._id === id && (c.unreadCount || 0) > 0)
+          ? prev.map((c) => (c._id === id ? { ...c, unreadCount: 0 } : c))
+          : prev
+      );
+    }
   }, [location.pathname]);
 
   useEffect(() => {
@@ -447,7 +457,11 @@ export default function HomePage() {
           ...conv,
           lastMessage,
           updatedAt: lastMessage.timestamp,
-          unreadCount: shouldIncrement ? (conv.unreadCount || 0) + 1 : conv.unreadCount || 0,
+          unreadCount: isOpen
+            ? 0
+            : shouldIncrement
+              ? (conv.unreadCount || 0) + 1
+              : conv.unreadCount || 0,
         };
 
         const newList = [...prev];
