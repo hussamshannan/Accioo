@@ -82,13 +82,23 @@ export default function ThemePicker() {
         {themes.map((theme) => {
           const selected = theme.id === themeName;
           return (
-            <button
+            /* Card is a div, not a <button>: Safari/WebKit ignores flex layout
+               and overflow clipping on <button>, which squared-off the rounded
+               corners and pushed the label out on iPhone. */
+            <div
               key={theme.id}
-              type="button"
+              role="button"
+              tabIndex={0}
               onClick={() => setThemeName(theme.id)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setThemeName(theme.id);
+                }
+              }}
               aria-pressed={selected}
               className={cn(
-                "group relative flex flex-col overflow-hidden rounded-xl border-2 text-left transition-colors",
+                "group relative flex cursor-pointer flex-col overflow-hidden rounded-xl border-2 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 selected ? "border-primary" : "border-border hover:border-muted-foreground/40"
               )}
             >
@@ -103,7 +113,7 @@ export default function ThemePicker() {
                   </span>
                 )}
               </div>
-            </button>
+            </div>
           );
         })}
       </div>
