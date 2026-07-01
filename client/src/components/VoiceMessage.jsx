@@ -28,7 +28,7 @@ function formatDuration(s) {
   return `${m}:${sec.toString().padStart(2, "0")}`;
 }
 
-export default function VoiceMessage({ msgId, audioUrl, duration = 0, isUploading, isMe, isBright }) {
+export default function VoiceMessage({ msgId, audioUrl, duration = 0, isUploading, isMe }) {
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0); // 0–1
   const [currentTime, setCurrent] = useState(0);
@@ -100,8 +100,10 @@ export default function VoiceMessage({ msgId, audioUrl, duration = 0, isUploadin
     }
   };
 
-  const playedColor = isMe ? "rgba(255,255,255,0.85)" : "#00A884";
-  const unplayedColor = isMe ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.18)";
+  // Derive from the bubble's foreground so bars stay visible on any theme.
+  const fg = isMe ? "var(--bubble-sent-fg)" : "var(--bubble-received-fg)";
+  const playedColor = fg;
+  const unplayedColor = `color-mix(in srgb, ${fg} 30%, transparent)`;
 
   return (
     <div className="voice-msg">

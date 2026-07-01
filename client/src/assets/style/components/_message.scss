@@ -403,7 +403,9 @@
 .container .chat .messages .message .reply-snippet {
   @include flex(stretch, flex-start, row, var(--space-mini));
   width: 100%;
-  background: rgba(0, 0, 0, 0.06);
+  /* Overlay + text derive from the bubble's foreground (set per bubble below)
+     so the quoted snippet stays visible on any theme's bubble color. */
+  background: color-mix(in srgb, currentColor 12%, transparent);
   border-radius: var(--border-radius-large);
   margin-bottom: var(--space-mini);
   overflow: hidden;
@@ -413,6 +415,7 @@
     width: 3px;
     border-radius: 3px;
     flex-shrink: 0;
+    background: currentColor;
   }
 
   .reply-content {
@@ -423,11 +426,13 @@
     .reply-author {
       font-size: 0.7rem;
       font-weight: 600;
+      color: inherit;
     }
 
     .reply-text {
       @include small();
-      color: var(--txt-clr-dark);
+      color: inherit;
+      opacity: 0.75;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -435,21 +440,11 @@
     }
   }
 }
-.from-them {
-  .reply-bar {
-    background: var(--primary-clr);
-  }
-  .reply-author {
-    color: var(--primary-clr);
-  }
+.from-them .reply-snippet {
+  color: var(--bubble-received-fg);
 }
-.from-me {
-  .reply-bar {
-    background: var(--accent-clr);
-  }
-  .reply-author {
-    color: var(--accent-clr);
-  }
+.from-me .reply-snippet {
+  color: var(--bubble-sent-fg);
 }
 
 /* ── Story-reply quote (denormalized snapshot of the replied-to story) ──── */
@@ -571,14 +566,21 @@
   }
 }
 
-/* Theme-specific button colors */
+/* Theme-specific colors — derive from the bubble foreground so the play
+   button, waveform and time stay visible on every theme's bubble color. */
+.from-them .voice-msg {
+  color: var(--bubble-received-fg);
+}
+.from-me .voice-msg {
+  color: var(--bubble-sent-fg);
+}
 .from-them .voice-msg-btn {
-  background: rgba(0, 0, 0, 0.1);
-  color: var(--txt-clr);
+  background: color-mix(in srgb, var(--bubble-received-fg) 14%, transparent);
+  color: var(--bubble-received-fg);
 }
 .from-me .voice-msg-btn {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
+  background: color-mix(in srgb, var(--bubble-sent-fg) 18%, transparent);
+  color: var(--bubble-sent-fg);
 }
 
 /* ── Link preview card ───────────────────────────────────────────────────── */
