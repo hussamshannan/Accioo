@@ -29,7 +29,7 @@ import ForwardDialog from "../components/ui/ForwardDialog";
 import LinkPreview from "../components/ui/LinkPreview";
 import { compressImage, compressVideo, MAX_SIZE } from "../utils/mediaCompression";
 import { Button } from "@/components/ui/button";
-import { Paperclip, Send, X, Loader2, Check, CheckCheck } from "lucide-react";
+import { Paperclip, Send, X, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const MAX_FILE_SIZE = MAX_SIZE; // from mediaCompression (15MB after compression)
@@ -1387,10 +1387,15 @@ export default function ChatPage() {
                           <span className={`read-indicator ${msg.read ? "read" : ""}`}>
                             {msg.read ? (
                               /* Read — double check */
-                              <CheckCheck width="16" height="16" strokeWidth={2.5} />
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M18 6 7 17l-5-5"/>
+                                <path d="m22 10-7.5 7.5L13 16"/>
+                              </svg>
                             ) : (
                               /* Delivered/received — single check */
-                              <Check width="16" height="16" strokeWidth={2.5} />
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M20 6 9 17l-5-5"/>
+                              </svg>
                             )}
                           </span>
                         )}
