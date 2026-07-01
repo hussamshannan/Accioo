@@ -88,19 +88,19 @@
      other rounded chat surfaces follow the chosen theme's roundness.
      --radius fallback for first paint before the theme JS runs. */
   --radius: 0.625rem;
-  --border-radius-small: calc(var(--radius) * 0.4);
-  --border-radius: calc(var(--radius) * 0.6);
-  --border-radius-large: var(--radius);
-  --border-radius-large2: calc(var(--radius) * 1.6);
-  --border-radius-large3: calc(var(--radius) * 2.4);
-  --border-radius-large4: calc(var(--radius) * 2.4);
-  --border-radius-extra-large: calc(var(--radius) * 4);
+  --border-radius-small: calc(var(--radius) * 0.35);
+  --border-radius: calc(var(--radius) * 0.5);
+  --border-radius-large: calc(var(--radius) * 0.8);
+  --border-radius-large2: calc(var(--radius) * 1.15);
+  --border-radius-large3: calc(var(--radius) * 1.5);
+  --border-radius-large4: calc(var(--radius) * 1.5);
+  --border-radius-extra-large: calc(var(--radius) * 2.2);
   --border-radius-circle: 50%;
 
-  /* Message bubble padding scales gently with the theme radius so rounder
-     themes get roomier bubbles. */
-  --space-bubble: calc(var(--space-mini) + var(--radius) * 0.45);
-  --space-bubble-x: calc(var(--space-1) + var(--radius) * 0.45);
+  /* Message bubble padding scales gently with the theme radius (kept small so
+     rounder themes don't get oversized bubbles). */
+  --space-bubble: calc(2px + var(--radius) * 0.18);
+  --space-bubble-x: calc(5px + var(--radius) * 0.22);
 
   --svg-fill: #0a0a0a;
   --svg-fill-light: #fafafa;

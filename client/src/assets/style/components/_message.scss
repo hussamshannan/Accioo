@@ -277,7 +277,7 @@
   .from-me {
     align-self: flex-end;
     background: var(--bubble-sent);
-    border-radius: var(--radius) var(--radius) 0 var(--radius);
+    border-radius: var(--border-radius-large) var(--border-radius-large) 0 var(--border-radius-large);
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
 
     /* Bubble tail */
@@ -315,7 +315,7 @@
   .from-them {
     align-self: flex-start;
     background: var(--bubble-received);
-    border-radius: var(--radius) var(--radius) var(--radius) 0;
+    border-radius: var(--border-radius-large) var(--border-radius-large) var(--border-radius-large) 0;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 
     /* Bubble tail */
@@ -517,7 +517,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 6px 10px;
+  /* extra bottom room for the absolutely-positioned duration */
+  padding: 6px 10px 18px;
   min-width: 200px;
   max-width: 300px;
 
@@ -540,9 +541,10 @@
 
   .voice-msg-body {
     flex: 1;
+    position: relative;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    justify-content: center;
     min-width: 0;
   }
 
@@ -563,6 +565,11 @@
   }
 
   .voice-msg-meta {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 3px;
     display: flex;
     align-items: center;
     justify-content: space-between;
