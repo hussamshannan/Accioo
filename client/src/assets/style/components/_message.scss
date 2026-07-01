@@ -138,18 +138,18 @@
           padding: 1px 5px;
           border-radius: 10px;
           border: 1px solid transparent;
-          background: var(--body-bg-clr-gray);
+          background: color-mix(in srgb, currentColor 14%, transparent);
           transition: border-color 0.15s;
 
           &.active {
-            border-color: var(--primary-clr);
-            background: rgba(0, 168, 132, 0.1);
+            border-color: currentColor;
+            background: color-mix(in srgb, currentColor 26%, transparent);
           }
 
           .reaction-count {
             font-size: 11px;
             font-weight: 600;
-            color: var(--txt-clr-dark);
+            color: inherit;
           }
         }
       }
@@ -166,6 +166,7 @@
         svg {
           width: 16px;
           height: 16px;
+          fill: none; /* override the meta `fill` so the stroke ticks aren't filled */
         }
 
         opacity: 0.55;
@@ -434,7 +435,7 @@
     .reply-text {
       @include small();
       color: inherit;
-      opacity: 0.75;
+      opacity: 0.9;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
