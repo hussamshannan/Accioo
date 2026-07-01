@@ -154,20 +154,22 @@
         }
       }
 
-      /* Read receipt */
+      /* Read receipt — lucide Check / CheckCheck (stroke, currentColor).
+         Color inherits the bubble foreground; read state is full-strength,
+         delivered is dimmed, so both stay visible on any theme's bubble. */
       .read-indicator {
         display: flex;
         align-items: center;
+        color: currentColor;
+        transition: opacity 0.3s ease;
 
         svg {
           width: 16px;
           height: 16px;
-          fill: var(--svg-fill-gray);
-          transition: fill 0.3s ease;
         }
 
-        &.delivered svg { fill: var(--svg-fill-gray); }
-        &.read svg { fill: var(--primary-clr); }
+        opacity: 0.55;
+        &.read { opacity: 1; }
       }
     }
   }

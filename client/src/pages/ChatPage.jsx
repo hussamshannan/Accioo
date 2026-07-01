@@ -29,7 +29,7 @@ import ForwardDialog from "../components/ui/ForwardDialog";
 import LinkPreview from "../components/ui/LinkPreview";
 import { compressImage, compressVideo, MAX_SIZE } from "../utils/mediaCompression";
 import { Button } from "@/components/ui/button";
-import { Paperclip, Send, X, Loader2 } from "lucide-react";
+import { Paperclip, Send, X, Loader2, Check, CheckCheck } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 const MAX_FILE_SIZE = MAX_SIZE; // from mediaCompression (15MB after compression)
@@ -1386,16 +1386,11 @@ export default function ChatPage() {
                         {msg.isMe && !msg.isSystem && (
                           <span className={`read-indicator ${msg.read ? "read" : ""}`}>
                             {msg.read ? (
-                              /* Double check teal */
-                              <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
-                                <path d="M1.5 12.5l5 5L17 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                                <path d="M7 12.5l5 5L22 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
+                              /* Read — double check */
+                              <CheckCheck width="16" height="16" strokeWidth={2.5} />
                             ) : (
-                              /* Single check gray */
-                              <svg viewBox="0 0 24 24" width="16" height="16" fill="none">
-                                <path d="M4 12.5l5 5L20 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
+                              /* Delivered/received — single check */
+                              <Check width="16" height="16" strokeWidth={2.5} />
                             )}
                           </span>
                         )}
