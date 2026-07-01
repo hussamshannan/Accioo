@@ -362,6 +362,8 @@
     p {
       @include small();
       color: var(--txt-clr-dark);
+      width: auto;
+      text-align: center;
     }
 
     .message-meta {
