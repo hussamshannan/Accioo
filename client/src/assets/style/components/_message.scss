@@ -153,25 +153,26 @@
           }
         }
       }
+    }
 
-      /* Read receipt — lucide Check / CheckCheck (stroke, currentColor).
-         Color inherits the bubble foreground; read state is full-strength,
-         delivered is dimmed, so both stay visible on any theme's bubble. */
-      .read-indicator {
-        display: flex;
-        align-items: center;
-        color: currentColor;
-        transition: opacity 0.3s ease;
+    /* Read receipt — lucide Check / CheckCheck (stroke, currentColor).
+       NOTE: .read-indicator is a direct child of .message-meta (a sibling of
+       the meta text span), so it must be styled here, not inside `span {}`.
+       It is itself a <span>, so `.message-meta span svg { fill }` above would
+       otherwise fill the stroke ticks — force fill:none. */
+    .read-indicator {
+      display: flex;
+      align-items: center;
+      transition: opacity 0.3s ease;
+      opacity: 0.55;
 
-        svg {
-          width: 16px;
-          height: 16px;
-          fill: none; /* override the meta `fill` so the stroke ticks aren't filled */
-        }
-
-        opacity: 0.55;
-        &.read { opacity: 1; }
+      svg {
+        width: 16px;
+        height: 16px;
+        fill: none;
       }
+
+      &.read { opacity: 1; }
     }
   }
 
@@ -413,6 +414,11 @@
   margin-bottom: var(--space-mini);
   overflow: hidden;
   cursor: pointer;
+
+  /* The global `* { color: var(--txt-clr) }` reset lands directly on the
+     inner nodes, so author/text would inherit --foreground instead of the
+     bubble fg set below. Force the subtree to inherit the snippet color. */
+  * { color: inherit; }
 
   .reply-bar {
     width: 3px;
